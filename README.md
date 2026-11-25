@@ -62,5 +62,8 @@ The control panel has two pages (links at the top): **Game** (`/`) and **Banners
 State is saved to `state.json`, so restarting the server keeps everything.
 To run the control panel from another computer or phone on the LAN: `HOST=0.0.0.0 go run .`. This has no password, so only do it on a trusted network.
 
-## Credits
-Tile art: [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles), public domain (CC0). Club logo and mascot art belong to Clube Zona Sul.
+## License & credits
+The code is licensed under the [GNU General Public License v3.0](LICENSE).
+
+The club logo and mascot artwork (`public/assets/logo.png`, `pexe.png`, `nanda.png`, `ponte.svg`) © Clube Zona Sul, all rights reserved, not covered by the GPL.
+Tile art: [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles), public domain (CC0).
