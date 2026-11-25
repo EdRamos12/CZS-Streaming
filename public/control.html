@@ -103,6 +103,8 @@
   <p><span data-i18n="inGame"></span><br><code id="u1"></code></p>
   <p><span data-i18n="breakScreen"></span><br><code id="u2"></code></p>
   <p><span data-i18n="talkScreen"></span><br><code id="u3"></code></p>
+  <p><span data-i18n="chat1"></span><br><code id="u4"></code></p>
+  <p><span data-i18n="chat2"></span><br><code id="u5"></code></p>
 </section>
 </div>
 </main>
@@ -138,6 +140,8 @@
   $('u1').textContent = `${location.origin}/overlay.html`;
   $('u2').textContent = `${location.origin}/ranking.html`;
   $('u3').textContent = `${location.origin}/cams.html`;
+  $('u4').textContent = `${location.origin}/chat1.html`;
+  $('u5').textContent = `${location.origin}/chat2.html`;
   $('seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="wind" id="w${i}"></span>
     <input type="text" list="names" data-i18n-ph="player" data-k="seats.${i}.name">
     <input type="number" step="100" data-k="seats.${i}.score" data-num>

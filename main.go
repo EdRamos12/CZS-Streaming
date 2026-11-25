@@ -314,6 +314,7 @@ func main() {
 	fmt.Printf("OBS (in-game):    http://localhost:%s/overlay.html\n", port)
 	fmt.Printf("OBS (break):      http://localhost:%s/ranking.html\n", port)
 	fmt.Printf("OBS (commentary): http://localhost:%s/cams.html\n", port)
+	fmt.Printf("OBS (game+chat):  http://localhost:%s/chat1.html (1 camera), /chat2.html (2 cameras)\n", port)
 	err := http.ListenAndServe(host+":"+port, s.handler())
 	if errors.Is(err, syscall.EADDRINUSE) {
 		log.Fatalf("Port %s is already in use by another program. Try: PORT=3000 go run .", port)

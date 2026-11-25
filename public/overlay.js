@@ -1,6 +1,6 @@
 // Shared by overlay.html (game, plus the ranking the control panel can fade in), ranking.html and cams.html.
-// ranking.html and cams.html pin their scene with <body data-scene>; commentary needs its own OBS scene, or the game capture would show through its camera holes.
-const forced = document.body.dataset.scene;
+// ranking.html and cams.html pin their scene with <body data-scene>; chat1.html / chat2.html pin the camera count with <body data-camera>; commentary needs its own OBS scene, or the game capture would show through its camera holes.
+const forced = document.body.dataset.scene, forcedCam = document.body.dataset.camera;
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -101,6 +101,7 @@ function riichiCall(name) {
 const WIND_NAMES = { romaji: { 東: 'Ton', 南: 'Nan', 西: 'Sha', 北: 'Pei' }, pt: { 東: 'Leste', 南: 'Sul', 西: 'Oeste', 北: 'Norte' } };
 
 function render(s) {
+  if (forcedCam) s.camera = +forcedCam;
   const r = s.round, winds = seatWinds(r.num), place = placements(s.seats);
   const names = WIND_NAMES[s.windText], w = k => (names ? names[k] : k);
   document.body.classList.toggle('romaji', s.windText === 'romaji');
@@ -111,8 +112,10 @@ function render(s) {
   document.body.classList.toggle('talk', scene === 'talk');
   document.body.classList.remove('cam0', 'cam1', 'cam2');
   document.body.classList.add(`cam${s.camera ?? 1}`);
-  punch();
-  setTimeout(punch, 700); // again once the camera boxes finish animating
+  // Follow the camera boxes every frame while they animate (.6s), so the holes never lag behind them.
+  const until = performance.now() + 800;
+  const follow = () => { punch(); if (performance.now() < until) requestAnimationFrame(follow); };
+  follow();
 
   if ($('bar')) {
     $('riichiFx').querySelector('b').textContent = s.riichiText === 'romaji' ? 'RIICHI' : 'リーチ';

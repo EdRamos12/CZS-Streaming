@@ -30,6 +30,8 @@ Needs Go 1.24 or newer (Node only for the JS tests).
 | `/overlay.html` | In-game overlay (1920x1080) |
 | `/ranking.html` | Break / ranking screen |
 | `/cams.html` | Commentary scene |
+| `/chat1.html` | In-game overlay with chat instead of the standings, 1 camera |
+| `/chat2.html` | Same, 2 cameras |
 
 ## OBS setup (canvas 1920x1080)
 1. **Window/Game Capture** of Mahjong Soul. Place it at 0,0 and size it to 1600x900.
@@ -42,7 +44,8 @@ Needs Go 1.24 or newer (Node only for the JS tests).
 5. Commentary scene (cameras + chat): browser source `http://localhost:8787/cams.html` in its own OBS scene.
    - Cameras go **under** the browser source: 1 camera at 80,220 sized 1280x720; 2 cameras at 60,330 and 720,330, both 640x360.
    - Chat goes **above** it (e.g. the YouTube/Twitch pop-out chat as a browser source with a transparent background): 1403,111 sized 454x906.
-6. (Optional) Docks → Custom Browser Docks → `http://localhost:8787/` to run the control panel inside OBS.
+6. In-game with chat (instead of the standings): use `chat1.html` (always 1 camera) or `chat2.html` (always 2 cameras) in place of `overlay.html`. Cameras go at the same spots as step 3. Put the chat browser source **above** it, under the "Chat" heading: about 1600,380 sized 320x516 (1 camera) or 1600,596 sized 320x300 (2 cameras). These pages ignore the panel's camera setting.
+7. (Optional) Docks → Custom Browser Docks → `http://localhost:8787/` to run the control panel inside OBS.
 
 The control panel has two pages (links at the top): **Game** (`/`) and **Banners & sponsors** (`/media.html`). On the Game page the live controls (round, table, Win / draw) are on the left and the broadcast setup on the right; on a narrow window (e.g. an OBS dock) they stack, live controls first. The dealer's seat is highlighted.
 

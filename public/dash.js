@@ -6,7 +6,7 @@ const $ = id => document.getElementById(id);
 const STR = {
   pt: {
     navGame: 'Jogo', navMedia: 'Banners e patrocinadores',
-    sources: 'Fontes de navegador do OBS (1920×1080)', inGame: 'Jogo', breakScreen: 'Intervalo / classificação',
+    sources: 'Fontes de navegador do OBS (1920×1080)', inGame: 'Jogo', breakScreen: 'Intervalo / classificação', chat1: 'Jogo com chat (1 câmera)', chat2: 'Jogo com chat (2 câmeras)',
     broadcast: 'Transmissão', title: 'Título', subtitle: 'Subtítulo (fase / mesa)', casters: 'Narrador(es) — câmera 1', casters2: 'Narrador(es) — câmera 2',
     scene: 'Cena', talkScreen: 'Narração (câmeras + chat)',
     camera: 'Câmera dos narradores', hidden: 'Oculta', oneCam: '1 câmera', twoCams: '2 câmeras', windText: 'Vento da rodada', windJa: 'Japonês (東1局)', windPt: 'Português (Leste 1)', riichiText: 'Chamada de riichi', riichiJa: 'Japonês (リーチ)',
@@ -29,7 +29,7 @@ const STR = {
   },
   en: {
     navGame: 'Game', navMedia: 'Banners & sponsors',
-    sources: 'OBS browser sources (1920×1080)', inGame: 'In-game', breakScreen: 'Break / ranking',
+    sources: 'OBS browser sources (1920×1080)', inGame: 'In-game', breakScreen: 'Break / ranking', chat1: 'In-game with chat (1 camera)', chat2: 'In-game with chat (2 cameras)',
     broadcast: 'Broadcast', title: 'Title', subtitle: 'Subtitle (stage / table)', casters: 'Commentator(s) — camera 1', casters2: 'Commentator(s) — camera 2',
     scene: 'Scene', talkScreen: 'Commentary (cameras + chat)',
     camera: 'Commentator camera', hidden: 'Hidden', oneCam: '1 camera', twoCams: '2 cameras', windText: 'Round wind', windJa: 'Japanese (東1局)', windPt: 'Portuguese (Leste 1)', riichiText: 'Riichi call', riichiJa: 'Japanese (リーチ)',

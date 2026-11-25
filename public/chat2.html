@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>CZS Overlay + chat (2 cam)</title>
+<link rel="stylesheet" href="overlay.css">
+</head>
+<body data-camera="2">
+  <div id="game"></div>
+
+  <aside id="side">
+    <div id="head" class="panel"><h1 id="title"></h1><h2 id="subtitle"></h2><p id="casters"></p></div>
+    <div class="cam"></div>
+    <div class="camCasters panel"></div>
+    <div class="cam cam2"></div>
+    <div class="camCasters2 panel"></div>
+    <div id="sideChat" class="panel"><h3>Chat</h3><div id="chatArea"></div></div>
+    <div id="ad" class="panel"><div class="slides" id="sponsors"></div></div>
+  </aside>
+
+  <div id="riichiFx"><b>リーチ</b><span></span></div>
+
+  <footer id="bar" class="panel">
+    <div id="round"><span id="roundName"></span><span id="sticks"></span></div>
+  </footer>
+
+  <section id="break" class="scene">
+    <img class="bridge" src="assets/ponte.svg" alt="">
+    <img class="pexe" src="assets/pexe.png" alt="">
+    <div>
+      <header><img src="assets/logo.png" alt=""><div><div class="t title"></div><div class="s subtitle"></div></div></header>
+      <h3>Classificação</h3>
+      <div class="view"><ol id="all"></ol></div>
+    </div>
+    <div class="slides" id="banner"></div>
+    <aside class="bside">
+      <h3>Narração</h3>
+      <div class="cam hole"></div>
+      <div class="camCasters panel"></div>
+      <div class="cam cam2 hole"></div>
+      <div class="camCasters2 panel"></div>
+      <div class="slides" id="banner2"></div>
+    </aside>
+  </section>
+<script src="common.js"></script>
+<script src="overlay.js"></script>
+</body>
+</html>
