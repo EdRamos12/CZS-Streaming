@@ -4,11 +4,18 @@ package main
 
 import (
 	"bytes"
+	"crypto/pbkdf2"
+	"crypto/rand"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path"
@@ -24,6 +31,7 @@ const (
 	public  = "public"
 	file    = "state.json"
 	uploads = "public/uploads"
+	pwFile  = "password.json" // delete it (or run with -reset-password) to set a new password
 )
 
 var (
@@ -39,6 +47,116 @@ type server struct {
 	state   []byte // compact JSON, kept as-is so unknown fields survive
 	file    string
 	clients map[chan struct{}]bool
+	pwFile  string
+	pw      *password           // nil until the owner sets one
+	fails   map[string]failures // wrong logins per IP address
+}
+
+type failures struct {
+	n     int
+	until time.Time
+}
+
+// Per address, so someone guessing from the LAN can't lock the owner out.
+const (
+	maxFails = 5
+	lockFor  = 5 * time.Minute
+)
+
+// password is stored as a salted PBKDF2 hash. Session is the cookie value; it changes with the password,
+// so a reset logs every browser out.
+type password struct {
+	Salt, Hash, Session string
+}
+
+func hashPw(pw, salt string) string {
+	k, _ := pbkdf2.Key(sha256.New, pw, []byte(salt), 600_000, 32)
+	return hex.EncodeToString(k)
+}
+
+func (s *server) authed(r *http.Request) bool {
+	s.mu.Lock()
+	pw := s.pw
+	s.mu.Unlock()
+	c, err := r.Cookie("czs")
+	return pw != nil && err == nil && subtle.ConstantTimeCompare([]byte(c.Value), []byte(pw.Session)) == 1
+}
+
+// guard: APIs answer 401, pages redirect to the login page.
+func (s *server) guard(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if s.authed(r) {
+			h(w, r)
+		} else if r.Method == "GET" {
+			http.Redirect(w, r, "/login.html", http.StatusSeeOther)
+		} else {
+			http.Error(w, "login required", 401)
+		}
+	}
+}
+
+func loopback(r *http.Request) bool {
+	host, _, _ := net.SplitHostPort(r.RemoteAddr)
+	ip := net.ParseIP(host)
+	return ip != nil && ip.IsLoopback()
+}
+
+// GET /api/auth tells the login page whether to ask for a new password or the existing one.
+func (s *server) authInfo(w http.ResponseWriter, r *http.Request) {
+	s.mu.Lock()
+	setup := s.pw == nil
+	s.mu.Unlock()
+	fmt.Fprintf(w, `{"setup":%t,"local":%t}`, setup, loopback(r))
+}
+
+// POST /api/login: checks the password, or sets it if none exists yet (only from this computer,
+// so nobody on the LAN can claim the panel first).
+func (s *server) login(w http.ResponseWriter, r *http.Request) {
+	body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 1000))
+	given := string(body)
+	if err != nil || given == "" {
+		http.Error(w, "empty password", 400)
+		return
+	}
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.fails == nil {
+		s.fails = map[string]failures{}
+	}
+	f := s.fails[ip]
+	if time.Now().Before(f.until) {
+		http.Error(w, fmt.Sprintf("too many wrong passwords, try again in %d minutes", int(time.Until(f.until).Minutes())+1), 429)
+		return
+	}
+	if s.pw == nil {
+		if !loopback(r) {
+			http.Error(w, "set the password from the computer running the server", 403)
+			return
+		}
+		if len(given) < 6 {
+			http.Error(w, "password must have at least 6 characters", 400)
+			return
+		}
+		pw := &password{Salt: rand.Text(), Session: rand.Text()}
+		pw.Hash = hashPw(given, pw.Salt)
+		b, _ := json.Marshal(pw)
+		if err := os.WriteFile(s.pwFile, b, 0o600); err != nil {
+			http.Error(w, err.Error(), 500)
+			return
+		}
+		s.pw = pw
+	} else if subtle.ConstantTimeCompare([]byte(hashPw(given, s.pw.Salt)), []byte(s.pw.Hash)) != 1 {
+		if f.n++; f.n >= maxFails {
+			f = failures{until: time.Now().Add(lockFor)}
+		}
+		s.fails[ip] = f
+		http.Error(w, "wrong password", 403)
+		return
+	}
+	delete(s.fails, ip)
+	http.SetCookie(w, &http.Cookie{Name: "czs", Value: s.pw.Session, Path: "/", MaxAge: 365 * 24 * 3600, HttpOnly: true, SameSite: http.SameSiteStrictMode})
+	io.WriteString(w, "ok")
 }
 
 // valid mirrors the old check: an object with round, 4 seats and a players array.
@@ -142,11 +260,18 @@ func deleteUpload(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) handler() http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /api/state", s.postState)
-	mux.HandleFunc("GET /api/events", s.events)
-	mux.HandleFunc("POST /api/upload", upload)
-	mux.HandleFunc("DELETE /api/upload/{name}", deleteUpload)
-	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, filepath.Join(public, "control.html")) })
+	mux.HandleFunc("POST /api/state", s.guard(s.postState))
+	mux.HandleFunc("GET /api/events", s.events) // overlays (OBS) stay open: they only read
+	mux.HandleFunc("POST /api/upload", s.guard(upload))
+	mux.HandleFunc("DELETE /api/upload/{name}", s.guard(deleteUpload))
+	mux.HandleFunc("GET /api/auth", s.authInfo)
+	mux.HandleFunc("POST /api/login", s.login)
+	page := func(f string) http.HandlerFunc {
+		return s.guard(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, filepath.Join(public, f)) })
+	}
+	mux.HandleFunc("GET /{$}", page("control.html"))
+	mux.HandleFunc("GET /control.html", page("control.html"))
+	mux.HandleFunc("GET /media.html", page("media.html"))
 	mux.Handle("GET /", http.FileServer(http.Dir(public)))
 	return mux
 }
@@ -159,13 +284,27 @@ func env(k, def string) string {
 }
 
 func main() {
+	reset := flag.Bool("reset-password", false, "forget the control panel password; the next visit from this computer sets a new one")
+	flag.Parse()
+	if *reset {
+		if err := os.Remove(pwFile); err != nil && !errors.Is(err, os.ErrNotExist) {
+			log.Fatal(err)
+		}
+		fmt.Println("Password removed. Start the server and open the control panel on this computer to set a new one.")
+		return
+	}
 	port := env("PORT", "8787")
 	host := env("HOST", "127.0.0.1") // set HOST=0.0.0.0 to control from another device on the LAN
 	if err := os.MkdirAll(uploads, 0o755); err != nil {
 		log.Fatal(err)
 	}
 
-	s := &server{file: file, clients: map[chan struct{}]bool{}, state: []byte(defaultState)}
+	s := &server{file: file, clients: map[chan struct{}]bool{}, state: []byte(defaultState), pwFile: pwFile}
+	if b, err := os.ReadFile(pwFile); err == nil {
+		if json.Unmarshal(b, &s.pw) != nil {
+			log.Fatalf("%s is damaged: delete it or run with -reset-password", pwFile)
+		}
+	}
 	var compact bytes.Buffer
 	if b, err := os.ReadFile(file); err == nil && json.Compact(&compact, b) == nil {
 		s.state = compact.Bytes()

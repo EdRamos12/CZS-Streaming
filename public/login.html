@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CZS</title>
+<link rel="stylesheet" href="dash.css">
+<style>
+  form { max-width: 340px; margin: 18vh auto 0; }
+  img { display: block; height: 64px; margin: 0 auto 16px; }
+  button { width: 100%; }
+  [hidden] { display: none !important; } /* dash.css label{display:flex} would override it */
+  #msg { color: #ff7a6b; min-height: 1.2em; font-size: 14px; }
+</style>
+</head>
+<body>
+<form class="card" id="f">
+  <img src="assets/logo.png" alt="CZS">
+  <h2 id="title"></h2>
+  <p class="hint" id="hint"></p>
+  <label><span id="l1"></span> <input type="password" id="pw" required autofocus autocomplete="current-password"></label>
+  <label id="row2" hidden><span id="l2"></span> <input type="password" id="pw2" autocomplete="new-password"></label>
+  <p id="msg" role="alert"></p>
+  <button class="primary" id="go"></button>
+</form>
+<script>
+  const pt = (localStorage.lang || (navigator.language.startsWith('pt') ? 'pt' : 'en')) === 'pt';
+  const T = pt
+    ? { login: 'Entrar', setup: 'Criar senha', pw: 'Senha', pw2: 'Repita a senha', mismatch: 'As senhas não são iguais',
+        setupHint: 'Primeiro acesso: escolha a senha do painel (mín. 6 caracteres).',
+        remote: 'Ainda não há senha. Crie a senha no computador que roda o servidor.',
+        forgot: 'Esqueceu? No servidor, rode com -reset-password (ou apague password.json) e crie outra.' }
+    : { login: 'Log in', setup: 'Create password', pw: 'Password', pw2: 'Repeat password', mismatch: "Passwords don't match",
+        setupHint: 'First run: choose the control panel password (at least 6 characters).',
+        remote: 'No password yet. Create it on the computer running the server.',
+        forgot: 'Forgot it? On the server, run with -reset-password (or delete password.json) and set a new one.' };
+  const $ = id => document.getElementById(id);
+  document.documentElement.lang = pt ? 'pt-BR' : 'en';
+  $('l1').textContent = T.pw; $('l2').textContent = T.pw2;
+  let setup = false;
+  fetch('/api/auth').then(r => r.json()).then(a => {
+    setup = a.setup;
+    $('title').textContent = $('go').textContent = setup ? T.setup : T.login;
+    $('hint').textContent = setup ? (a.local ? T.setupHint : T.remote) : T.forgot;
+    $('row2').hidden = !setup;
+    $('pw2').required = setup;
+    $('pw').autocomplete = setup ? 'new-password' : 'current-password';
+    if (setup && !a.local) $('go').disabled = true;
+  });
+  $('f').onsubmit = async e => {
+    e.preventDefault();
+    if (setup && $('pw').value !== $('pw2').value) return $('msg').textContent = T.mismatch;
+    const r = await fetch('/api/login', { method: 'POST', body: $('pw').value }).catch(() => null);
+    if (r?.ok) location.href = '/';
+    else $('msg').textContent = r ? await r.text() : 'offline';
+  };
+</script>
+</body>
+</html>

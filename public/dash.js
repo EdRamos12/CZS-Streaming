@@ -91,6 +91,7 @@ function push() {
   clearTimeout(timer);
   timer = setTimeout(async () => {
     const r = await fetch('/api/state', { method: 'POST', body: JSON.stringify(state) }).catch(() => null);
+    if (r?.status === 401) location.href = '/login.html'; // password was reset while this page was open
     if (n === seq) pending = false;
     $('status').textContent = t($('status').dataset.k = r?.ok ? 'saved' : 'offline');
   }, 200);

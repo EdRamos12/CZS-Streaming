@@ -15,12 +15,14 @@ A tiny Go server (standard library only, no dependencies) serves a control panel
 - State saved to disk, so a restart keeps everything
 
 ## Quick start
-Needs Go 1.22 or newer (Node only for the JS tests).
+Needs Go 1.24 or newer (Node only for the JS tests).
 
     go run .              # then open http://localhost:8787/
     go build              # or build a single binary: ./czs-livestreams (run it from this folder)
     go test               # server self-check
     node test.js          # scoring/overlay logic self-check
+
+**Password:** the first time you open the control panel it asks you to create a password (this has to be done on the computer running the server). After that, every browser has to type it once to use the panel. The OBS overlays don't need it. Forgot the password? Stop the server, run `go run . -reset-password` (or `./czs-livestreams -reset-password`, or just delete `password.json`), start it again and set a new one. Resetting logs out every browser. After 5 wrong passwords, that device has to wait 5 minutes before trying again.
 
 | URL | What it is |
 | --- | --- |

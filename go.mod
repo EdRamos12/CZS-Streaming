@@ -1,3 +1,3 @@
 module czs-livestreams
 
-go 1.22
+go 1.24
