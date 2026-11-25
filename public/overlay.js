@@ -7,7 +7,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // Seat cards are built once and updated in place, so changes can animate.
 $('bar')?.insertAdjacentHTML('beforeend', [0, 1, 2, 3].map(i => `
   <div class="seat" id="seat${i}"><div class="wind"></div>
-    <div><div class="name"></div><div class="stick"></div><div class="score"></div><div class="sub"><div class="diff"></div><div class="waits"></div></div></div>
+    <div><div class="stick"></div><div class="name"></div><div class="score"></div><div class="sub"><div class="diff"></div><div class="waits"></div></div></div>
     <div class="place"></div></div>`).join(''));
 
 // Crossfade through images; rebuilt only when the list or speed changes.
