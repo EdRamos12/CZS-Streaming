@@ -5,16 +5,24 @@
 <title>CZS</title>
 <link rel="stylesheet" href="dash.css">
 <style>
-  .seat { display: grid; grid-template-columns: 50px 1fr 130px auto auto auto; gap: 8px; align-items: center; margin: 4px 0; }
-  .wind { font-size: 26px; text-align: center; font-family: serif; }
-  #winBtn { font-size: 18px; padding: 10px 18px; margin-top: 12px; }
-  dialog { background: #16130f; color: #eee; border: 2px solid #f2b632; border-radius: 8px; width: min(560px, 92vw); }
+  .roundNow { color: #fff; font-family: serif; font-size: 22px; letter-spacing: 0; margin-left: 6px; text-transform: none; }
+  .seat { display: grid; grid-template-columns: 44px minmax(120px, 1fr) 110px auto auto auto auto; gap: 8px; align-items: center;
+          padding: 6px 8px; margin: 0 -8px; border-radius: 8px; }
+  .seat.dealer { background: #f2b63214; box-shadow: inset 3px 0 var(--gold); }
+  .seat.dealer .wind { color: var(--gold); }
+  .wind { font-size: 26px; line-height: 1.1; text-align: center; font-family: serif; }
+  .wind small { display: block; font: 11px system-ui, sans-serif; color: var(--muted); }
+  .seat input[type=number] { width: 100%; font-size: 17px; }
+  @media (max-width: 640px) { .seat { display: flex; flex-wrap: wrap; } .seat input[type=text] { flex: 1; width: auto; min-width: 0; } .seat input[type=number] { width: 110px; } }
+  #winBtn { width: 100%; font-size: 18px; padding: 12px 18px; margin-top: 14px; }
+  .links p { margin: 0 0 10px; font-size: 13px; color: var(--muted); }
+  dialog { background: #16130f; color: #eee; border: 1px solid var(--gold); border-radius: 12px; padding: 20px 22px; width: min(600px, 92vw); }
   dialog::backdrop { background: #000a; }
   dialog h2:first-child { margin-top: 0; }
   .pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; }
-  .pick label, .kind label { margin: 0; }
+  .pick label, .kind label { margin: 0; font-size: 14px; }
   .pick input, .kind input { position: absolute; opacity: 0; }
-  .pick span, .kind span { display: block; text-align: center; padding: 8px 4px; border: 1px solid #554a33; border-radius: 4px; color: #fff; cursor: pointer;
+  .pick span, .kind span { display: block; text-align: center; padding: 8px 4px; border: 1px solid #554a33; border-radius: 6px; color: #fff; cursor: pointer;
                            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pick input:checked + span, .kind input:checked + span { background: #f2b632; color: #000; border-color: #f2b632; }
   .pick input:disabled + span { opacity: .3; cursor: default; }
@@ -37,44 +45,67 @@
 </style>
 </head>
 <body>
-<h1 data-i18n="h1"></h1>
-<p class="links"><span data-i18n="sources"></span> <code id="u1"></code> (<span data-i18n="inGame"></span>) · <code id="u2"></code> (<span data-i18n="breakScreen"></span>) · <code id="u3"></code> (<span data-i18n="talkScreen"></span>)</p>
+<main class="cols">
+<div>
+<section class="card">
+  <h2><span data-i18n="round"></span> <b class="roundNow" id="roundNow"></b></h2>
+  <div class="row">
+    <label><span data-i18n="wind"></span> <select data-k="round.wind" data-num><option value="0" data-i18n="east"></option><option value="1" data-i18n="south"></option><option value="2" data-i18n="west"></option><option value="3" data-i18n="north"></option></select></label>
+    <label><span data-i18n="hand"></span> <input type="number" min="1" max="4" data-k="round.num" data-num></label>
+    <label>Honba <input type="number" min="0" data-k="round.honba" data-num></label>
+    <label><span data-i18n="riichi"></span> <input type="number" min="0" data-k="round.riichi" data-num></label>
+  </div>
+  <div class="row">
+    <button id="next" data-i18n="next" data-i18n-title="nextTip"></button>
+    <button id="renchan" data-i18n="renchan" data-i18n-title="renchanTip"></button>
+    <span class="spacer"></span>
+    <button id="resetHand" class="danger" data-i18n="resetHand" data-i18n-title="resetHandTip"></button>
+    <button id="resetRound" class="danger" data-i18n="resetRound" data-i18n-title="resetRoundTip"></button>
+  </div>
+</section>
 
-<h2 data-i18n="broadcast"></h2>
-<label><span data-i18n="title"></span> <input type="text" data-k="title"></label>
-<label><span data-i18n="subtitle"></span> <input type="text" data-k="subtitle"></label>
-<label><span data-i18n="casters"></span> <input type="text" data-k="casters"></label>
-<label><span data-i18n="casters2"></span> <input type="text" data-k="casters2"></label>
-
-<h2 data-i18n="scene"></h2>
-<div class="row">
-  <label><span data-i18n="camera"></span> <select data-k="camera" data-num><option value="0" data-i18n="hidden"></option><option value="1" data-i18n="oneCam"></option><option value="2" data-i18n="twoCams"></option></select></label>
-  <label><span data-i18n="windText"></span> <select data-k="windText"><option value="ja" data-i18n="windJa"></option><option value="pt" data-i18n="windPt"></option><option value="romaji">Romaji (Ton 1)</option></select></label>
-  <label><span data-i18n="riichiText"></span> <select data-k="riichiText"><option value="ja" data-i18n="riichiJa"></option><option value="romaji">Romaji (RIICHI)</option></select></label>
+<section class="card">
+  <h2 data-i18n="table"></h2>
+  <p class="hint" data-i18n="tableHelp"></p>
+  <div id="seats"></div>
+  <button id="winBtn" class="primary" data-i18n="winBtn"></button>
+</section>
 </div>
 
-<h2 data-i18n="round"></h2>
-<div class="row">
-  <label><span data-i18n="wind"></span> <select data-k="round.wind" data-num><option value="0" data-i18n="east"></option><option value="1" data-i18n="south"></option><option value="2" data-i18n="west"></option><option value="3" data-i18n="north"></option></select></label>
-  <label><span data-i18n="hand"></span> <input type="number" min="1" max="4" data-k="round.num" data-num></label>
-  <label>Honba <input type="number" min="0" data-k="round.honba" data-num></label>
-  <label><span data-i18n="riichi"></span> <input type="number" min="0" data-k="round.riichi" data-num></label>
-  <label><span data-i18n="startScore"></span> <input type="number" min="0" step="1000" data-k="startScore" data-num></label>
-</div>
-<div class="row">
-  <button id="next" data-i18n="next"></button>
-  <button id="renchan" data-i18n="renchan"></button>
-  <button id="resetHand" data-i18n="resetHand"></button>
-  <button id="resetRound" data-i18n="resetRound"></button>
-</div>
+<div>
+<section class="card">
+  <h2 data-i18n="broadcast"></h2>
+  <label><span data-i18n="title"></span> <input type="text" data-k="title"></label>
+  <label><span data-i18n="subtitle"></span> <input type="text" data-k="subtitle"></label>
+  <label><span data-i18n="casters"></span> <input type="text" data-k="casters"></label>
+  <label><span data-i18n="casters2"></span> <input type="text" data-k="casters2"></label>
+</section>
 
-<h2 data-i18n="table"></h2>
-<div id="seats"></div>
-<button id="winBtn" data-i18n="winBtn"></button>
+<section class="card">
+  <h2 data-i18n="scene"></h2>
+  <div class="row">
+    <label><span data-i18n="camera"></span> <select data-k="camera" data-num><option value="0" data-i18n="hidden"></option><option value="1" data-i18n="oneCam"></option><option value="2" data-i18n="twoCams"></option></select></label>
+    <label><span data-i18n="windText"></span> <select data-k="windText"><option value="ja" data-i18n="windJa"></option><option value="pt" data-i18n="windPt"></option><option value="romaji">Romaji (Ton 1)</option></select></label>
+    <label><span data-i18n="riichiText"></span> <select data-k="riichiText"><option value="ja" data-i18n="riichiJa"></option><option value="romaji">Romaji (RIICHI)</option></select></label>
+    <label><span data-i18n="startScore"></span> <input type="number" min="0" step="1000" data-k="startScore" data-num></label>
+  </div>
+</section>
 
-<h2 data-i18n="standingsHelp"></h2>
-<textarea id="players" rows="12"></textarea>
-<datalist id="names"></datalist>
+<section class="card">
+  <h2 data-i18n="standings"></h2>
+  <p class="hint" data-i18n="standingsHelp"></p>
+  <textarea id="players" rows="10"></textarea>
+  <datalist id="names"></datalist>
+</section>
+
+<section class="card links">
+  <h2 data-i18n="sources"></h2>
+  <p><span data-i18n="inGame"></span><br><code id="u1"></code></p>
+  <p><span data-i18n="breakScreen"></span><br><code id="u2"></code></p>
+  <p><span data-i18n="talkScreen"></span><br><code id="u3"></code></p>
+</section>
+</div>
+</main>
 
 <dialog id="win"><form id="winForm" method="dialog">
   <h2 data-i18n="winTitle"></h2>
@@ -92,13 +123,13 @@
   <div id="tenpaiRow"><label data-i18n="tenpai"></label><div class="pick" id="tenpai"></div></div>
   <h2 data-i18n="preview"></h2>
   <div id="preview"></div>
-  <div class="actions"><button value="cancel" formnovalidate data-i18n="cancel"></button><button id="apply" value="apply" data-i18n="apply"></button></div>
+  <div class="actions"><button value="cancel" formnovalidate data-i18n="cancel"></button><button id="apply" value="apply" class="primary" data-i18n="apply"></button></div>
 </form></dialog>
 
 <dialog id="waitsDlg"><form method="dialog">
   <h2><span data-i18n="waitsTitle"></span> — <span id="waitsName"></span></h2>
   <div id="tiles"></div>
-  <div class="actions"><button type="button" id="waitsClear" data-i18n="clear"></button><button data-i18n="done"></button></div>
+  <div class="actions"><button type="button" id="waitsClear" data-i18n="clear"></button><button class="primary" data-i18n="done"></button></div>
 </form></dialog>
 
 <script src="common.js"></script>
@@ -132,7 +163,9 @@
   onFill = () => {
     if ($('players') !== document.activeElement) $('players').value = playersText(state.players);
     $('names').innerHTML = state.players.map(p => `<option value="${esc(p.name)}">`).join('');
-    seatWinds(state.round.num).forEach((w, i) => ($(`w${i}`).textContent = w));
+    // wind name under the kanji, taken from the round-wind option text ('東 Leste' -> 'Leste')
+    seatWinds(state.round.num).forEach((w, i) => { $(`w${i}`).innerHTML = `${w}<small>${t(['east', 'south', 'west', 'north'][WINDS.indexOf(w)]).split(' ')[1]}</small>`; $(`w${i}`).parentNode.classList.toggle('dealer', w === '東'); });
+    $('roundNow').textContent = `${WINDS[state.round.wind]}${state.round.num}局`;
     state.seats.forEach((s, i) => $(`r${i}`).classList.toggle('on', !!s.riichi));
     state.seats.forEach((s, i) => ($(`wb${i}`).innerHTML = waitsOf(i).map(t => `<img src="${tileSrc(t)}" alt="${t}">`).join('') || t('waits')));
     if (waitsSeat !== null) document.querySelectorAll('#tiles [data-t]').forEach(b => {

@@ -6,21 +6,22 @@ const $ = id => document.getElementById(id);
 const STR = {
   pt: {
     navGame: 'Jogo', navMedia: 'Banners e patrocinadores',
-    h1: 'Overlay do Torneio CZS', sources: 'Fontes de navegador do OBS (1920×1080):', inGame: 'jogo', breakScreen: 'intervalo',
+    sources: 'Fontes de navegador do OBS (1920×1080)', inGame: 'Jogo', breakScreen: 'Intervalo / classificação',
     broadcast: 'Transmissão', title: 'Título', subtitle: 'Subtítulo (fase / mesa)', casters: 'Narrador(es) — câmera 1', casters2: 'Narrador(es) — câmera 2',
-    scene: 'Cena', talkScreen: 'narração',
+    scene: 'Cena', talkScreen: 'Narração (câmeras + chat)',
     camera: 'Câmera dos narradores', hidden: 'Oculta', oneCam: '1 câmera', twoCams: '2 câmeras', windText: 'Vento da rodada', windJa: 'Japonês (東1局)', windPt: 'Português (Leste 1)', riichiText: 'Chamada de riichi', riichiJa: 'Japonês (リーチ)',
     round: 'Rodada', wind: 'Vento', hand: 'Mão', riichi: 'Palitos de riichi', startScore: 'Pontos iniciais',
     east: '東 Leste', south: '南 Sul', west: '西 Oeste', north: '北 Norte',
-    next: 'Próxima mão (dealer passa)', renchan: 'Dealer repete (+1 honba)',
-    resetHand: 'Reiniciar mão (volta ao início da mão)', resetRound: 'Reiniciar rodada (novo jogo: 東1, pontos iniciais)',
-    table: 'Mesa — jogadores na ordem inicial (primeiro = Leste no 東1)',
-    standingsHelp: 'Classificação do torneio — um jogador por linha: <code>Nome pontos</code> (ex.: <code>Ana Souza 45,5</code>)',
+    next: 'Próxima mão', nextTip: 'O dealer passa, honba volta a 0', renchan: 'Dealer repete', renchanTip: '+1 honba',
+    resetHand: 'Desfazer mão', resetHandTip: 'Volta ao início desta mão (de novo logo em seguida: mais uma mão)',
+    resetRound: 'Novo jogo', resetRoundTip: '東1, palitos 0, pontos iniciais para todos',
+    table: 'Mesa', tableHelp: 'Jogadores na ordem inicial (primeiro = Leste no 東1). O dealer fica destacado.',
+    standings: 'Classificação do torneio', standingsHelp: 'Um jogador por linha: <code>Nome pontos</code> (ex.: <code>Ana Souza 45,5</code>)',
     player: 'Jogador', waits: 'Espera', waitsTitle: 'Espera (tenpai)', clear: 'Limpar', done: 'OK', riichiBtn: 'Riichi', saved: '✔ salvo', offline: '✖ servidor inacessível',
     noSnap: 'Nenhum início de mão salvo ainda. Use "Próxima mão" ou "Dealer repete" primeiro.',
     confirmHand: 'Desfazer todas as alterações desde o início desta mão?',
     confirmRound: 'Começar um novo jogo? Rodada volta para 東1, palitos para 0, pontos para {n}.',
-    winBtn: '🀄 Vitória / empate (distribuir pontos)', draw: 'Empate', tenpai: 'Quem estava tenpai', winTitle: 'Vitória', winner: 'Quem ganhou (no ron dá para marcar mais de um: ron duplo/triplo)', dealtIn: 'Quem pagou (ron)',
+    winBtn: '🀄 Vitória / empate', draw: 'Empate', tenpai: 'Quem estava tenpai', winTitle: 'Vitória', winner: 'Quem ganhou (no ron dá para marcar mais de um: ron duplo/triplo)', dealtIn: 'Quem pagou (ron)',
     points: 'Valor da mão de cada ganhador (valor do ron; no tsumo é dividido)', preview: 'Resultado', cancel: 'Cancelar', apply: 'Aplicar e ir para a próxima mão',
     banners: 'Banners (tela de intervalo, no lugar do mascote)', sponsors: 'Patrocinadores (canto inferior direito do jogo)',
     rotate: 'Troca a cada (segundos)', upload: 'Adicionar imagens (png, jpg, webp, gif — até 10 MB)',
@@ -28,21 +29,22 @@ const STR = {
   },
   en: {
     navGame: 'Game', navMedia: 'Banners & sponsors',
-    h1: 'CZS Tournament Overlay', sources: 'OBS browser sources (1920×1080):', inGame: 'in-game', breakScreen: 'break screen',
+    sources: 'OBS browser sources (1920×1080)', inGame: 'In-game', breakScreen: 'Break / ranking',
     broadcast: 'Broadcast', title: 'Title', subtitle: 'Subtitle (stage / table)', casters: 'Commentator(s) — camera 1', casters2: 'Commentator(s) — camera 2',
-    scene: 'Scene', talkScreen: 'commentary',
+    scene: 'Scene', talkScreen: 'Commentary (cameras + chat)',
     camera: 'Commentator camera', hidden: 'Hidden', oneCam: '1 camera', twoCams: '2 cameras', windText: 'Round wind', windJa: 'Japanese (東1局)', windPt: 'Portuguese (Leste 1)', riichiText: 'Riichi call', riichiJa: 'Japanese (リーチ)',
     round: 'Round', wind: 'Wind', hand: 'Hand', riichi: 'Riichi sticks', startScore: 'Starting points',
     east: '東 East', south: '南 South', west: '西 West', north: '北 North',
-    next: 'Next hand (dealer moves)', renchan: 'Dealer repeats (+1 honba)',
-    resetHand: 'Reset hand (undo to start of hand)', resetRound: 'Reset round (new game: 東1, starting points)',
-    table: 'Table — list seats in starting order (first = East at 東1)',
-    standingsHelp: 'Tournament standings — one player per line: <code>Name points</code> (e.g. <code>Ana Souza 45,5</code>)',
+    next: 'Next hand', nextTip: 'Dealer moves, honba back to 0', renchan: 'Dealer repeats', renchanTip: '+1 honba',
+    resetHand: 'Undo hand', resetHandTip: 'Back to the start of this hand (again right after: one more hand back)',
+    resetRound: 'New game', resetRoundTip: '東1, sticks 0, starting points for everyone',
+    table: 'Table', tableHelp: 'Seats in starting order (first = East at 東1). The dealer is highlighted.',
+    standings: 'Tournament standings', standingsHelp: 'One player per line: <code>Name points</code> (e.g. <code>Ana Souza 45,5</code>)',
     player: 'Player', waits: 'Waits', waitsTitle: 'Waits (tenpai)', clear: 'Clear', done: 'OK', riichiBtn: 'Riichi', saved: '✔ saved', offline: '✖ server not reachable',
     noSnap: 'No hand start saved yet. Use "Next hand" or "Dealer repeats" first.',
     confirmHand: 'Undo all changes since the start of this hand?',
     confirmRound: 'Start a new game? Round goes to 東1, sticks to 0, scores to {n}.',
-    winBtn: '🀄 Win / draw (pay out points)', draw: 'Draw', tenpai: 'Who was tenpai', winTitle: 'Win', winner: 'Winner (ron: tick more than one for double/triple ron)', dealtIn: 'Dealt in (ron)',
+    winBtn: '🀄 Win / draw', draw: 'Draw', tenpai: 'Who was tenpai', winTitle: 'Win', winner: 'Winner (ron: tick more than one for double/triple ron)', dealtIn: 'Dealt in (ron)',
     points: 'Hand value per winner (ron value; tsumo splits it)', preview: 'Result', cancel: 'Cancel', apply: 'Apply and go to next hand',
     banners: 'Banners (break screen, in place of the mascot)', sponsors: 'Sponsors (bottom-right corner in game)',
     rotate: 'Change every (seconds)', upload: 'Add images (png, jpg, webp, gif — up to 10 MB)',
@@ -64,6 +66,7 @@ function applyLang() {
   $('lang').value = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => (el.innerHTML = t(el.dataset.i18n)));
   document.querySelectorAll('[data-i18n-ph]').forEach(el => (el.placeholder = t(el.dataset.i18nPh)));
+  document.querySelectorAll('[data-i18n-title]').forEach(el => (el.title = t(el.dataset.i18nTitle)));
   if ($('status').dataset.k) $('status').textContent = t($('status').dataset.k);
   if (state) fill();
 }

@@ -42,7 +42,7 @@ Needs Go 1.22 or newer (Node only for the JS tests).
    - Chat goes **above** it (e.g. the YouTube/Twitch pop-out chat as a browser source with a transparent background): 1403,111 sized 454x906.
 6. (Optional) Docks → Custom Browser Docks → `http://localhost:8787/` to run the control panel inside OBS.
 
-The control panel has two pages (links at the top): **Game** (`/`) and **Banners & sponsors** (`/media.html`).
+The control panel has two pages (links at the top): **Game** (`/`) and **Banners & sponsors** (`/media.html`). On the Game page the live controls (round, table, Win / draw) are on the left and the broadcast setup on the right; on a narrow window (e.g. an OBS dock) they stack, live controls first. The dealer's seat is highlighted.
 
 ## Running a game
 - List the four players in **starting seat order** (whoever is East at 東1 goes first). The seat winds then rotate on their own as you change the hand.
@@ -50,8 +50,8 @@ The control panel has two pages (links at the top): **Game** (`/`) and **Banners
 - Exhaustive draw: press **Win / draw**, pick **Draw** and tick who was tenpai (riichi players are pre-ticked). Noten players pay 3000 split among tenpai players, honba goes up by 1, the dealer repeats if tenpai, and riichi sticks stay on the table for the next winner.
 - Double/triple ron: pick **Ron**, tick every winner and type each one's hand value in the box under their name (presets fill the last winner you clicked). Honba and riichi sticks go to the winner closest after the one who dealt in; the dealer repeats if they were one of the winners.
 - Abortive draws and other cases: copy the scores from Mahjong Soul by hand. Use "Next hand" or "Dealer repeats" for the round counter.
-- "Starting points" sets what "Reset round" gives everyone (default 25,000).
-- "Reset hand" undoes scores/round back to the start of the current hand. Pressed again right after, it goes back one more hand (to undo a misclicked Win). "Reset round" starts a new game (東1, 25,000 each).
+- "Starting points" (Scene section) sets what "New game" gives everyone (default 25,000).
+- "Undo hand" undoes scores/round back to the start of the current hand. Pressed again right after, it goes back one more hand (to undo a misclicked Win). "New game" starts a new game (東1, 25,000 each). Hover any round button for a reminder of what it does.
 - After each hanchan, update the standings box (`Name points`, one per line). If the list is longer than the box, it scrolls slowly on its own.
 - "Riichi" next to a player takes their 1000, adds a stick to the table, plays the call on the overlay and shows a stick under their seat. Click again to undo a misclick. The stick markers clear on the next hand.
 - "Waits" button next to a player: click the tiles they are waiting on (tenpai), up to 3. They show as tiles under the score on the overlay right away and clear on the next hand. Tile art: [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles) (public domain).
