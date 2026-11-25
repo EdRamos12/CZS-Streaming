@@ -34,7 +34,10 @@ button.on, button.on:hover:not(:disabled) { background: var(--red); border-color
 .row + .row { margin-top: 12px; }
 .spacer { flex: 1; }
 
-nav { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; padding: 10px 0; margin-bottom: 16px;
+html { overflow-x: hidden; } /* 100vw below counts the scrollbar; don't let that scroll sideways */
+/* Full-bleed bar: stretch to the window edges, pad back so the contents still line up with the page. */
+nav { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px;
+      margin: 0 calc(50% - 50vw) 16px; padding: 10px calc(50vw - 50%);
       background: #0b0a08e6; backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
 nav img { height: 32px; }
 nav a { color: var(--muted); text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
