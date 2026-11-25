@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CZS</title>
+<link rel="stylesheet" href="dash.css">
+<style>
+  .seat { display: grid; grid-template-columns: 50px 1fr 130px auto auto auto; gap: 8px; align-items: center; margin: 4px 0; }
+  .wind { font-size: 26px; text-align: center; font-family: serif; }
+  #winBtn { font-size: 18px; padding: 10px 18px; margin-top: 12px; }
+  dialog { background: #16130f; color: #eee; border: 2px solid #f2b632; border-radius: 8px; width: min(560px, 92vw); }
+  dialog::backdrop { background: #000a; }
+  dialog h2:first-child { margin-top: 0; }
+  .pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; }
+  .pick label, .kind label { margin: 0; }
+  .pick input, .kind input { position: absolute; opacity: 0; }
+  .pick span, .kind span { display: block; text-align: center; padding: 8px 4px; border: 1px solid #554a33; border-radius: 4px; color: #fff; cursor: pointer;
+                           white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pick input:checked + span, .kind input:checked + span { background: #f2b632; color: #000; border-color: #f2b632; }
+  .pick input:disabled + span { opacity: .3; cursor: default; }
+  .pick input:focus-visible + span, .kind input:focus-visible + span { outline: 2px solid #fff; }
+  .kind { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin: 10px 0; }
+  #ptsRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  #ptsRow label { margin: 0; }
+  #ptsRow span { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #ptsRow input { width: 100%; box-sizing: border-box; }
+  #presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  #preview { display: grid; grid-template-columns: 1fr auto auto; gap: 2px 16px; margin: 6px 0 14px; font-variant-numeric: tabular-nums; }
+  #preview .up { color: #7bd88f; } #preview .down { color: #e56b5d; }
+  .waitsBtn { display: flex; gap: 2px; align-items: center; min-width: 90px; min-height: 36px; }
+  .waitsBtn img, #tiles img { background: url(assets/tiles/Front.svg) center / contain no-repeat; }
+  .waitsBtn img { height: 26px; }
+  #tiles { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin: 10px 0 14px; }
+  #tiles button { padding: 2px; border-color: #554a33; } #tiles img { width: 100%; display: block; }
+  #tiles button.on { background: #f2b632; border-color: #f2b632; }
+  .actions { display: flex; justify-content: end; gap: 8px; }
+</style>
+</head>
+<body>
+<h1 data-i18n="h1"></h1>
+<p class="links"><span data-i18n="sources"></span> <code id="u1"></code> (<span data-i18n="inGame"></span>) · <code id="u2"></code> (<span data-i18n="breakScreen"></span>) · <code id="u3"></code> (<span data-i18n="talkScreen"></span>)</p>
+
+<h2 data-i18n="broadcast"></h2>
+<label><span data-i18n="title"></span> <input type="text" data-k="title"></label>
+<label><span data-i18n="subtitle"></span> <input type="text" data-k="subtitle"></label>
+<label><span data-i18n="casters"></span> <input type="text" data-k="casters"></label>
+<label><span data-i18n="casters2"></span> <input type="text" data-k="casters2"></label>
+
+<h2 data-i18n="scene"></h2>
+<div class="row">
+  <label><span data-i18n="onScreen"></span> <select data-k="scene"><option value="game" data-i18n="game"></option><option value="ranking" data-i18n="ranking"></option></select></label>
+  <label><span data-i18n="camera"></span> <select data-k="camera" data-num><option value="0" data-i18n="hidden"></option><option value="1" data-i18n="oneCam"></option><option value="2" data-i18n="twoCams"></option></select></label>
+  <label><span data-i18n="windText"></span> <select data-k="windText"><option value="ja" data-i18n="windJa"></option><option value="pt" data-i18n="windPt"></option><option value="romaji">Romaji (Ton 1)</option></select></label>
+  <label><span data-i18n="riichiText"></span> <select data-k="riichiText"><option value="ja" data-i18n="riichiJa"></option><option value="romaji">Romaji (RIICHI)</option></select></label>
+</div>
+
+<h2 data-i18n="round"></h2>
+<div class="row">
+  <label><span data-i18n="wind"></span> <select data-k="round.wind" data-num><option value="0" data-i18n="east"></option><option value="1" data-i18n="south"></option><option value="2" data-i18n="west"></option><option value="3" data-i18n="north"></option></select></label>
+  <label><span data-i18n="hand"></span> <input type="number" min="1" max="4" data-k="round.num" data-num></label>
+  <label>Honba <input type="number" min="0" data-k="round.honba" data-num></label>
+  <label><span data-i18n="riichi"></span> <input type="number" min="0" data-k="round.riichi" data-num></label>
+  <label><span data-i18n="startScore"></span> <input type="number" min="0" step="1000" data-k="startScore" data-num></label>
+</div>
+<div class="row">
+  <button id="next" data-i18n="next"></button>
+  <button id="renchan" data-i18n="renchan"></button>
+  <button id="resetHand" data-i18n="resetHand"></button>
+  <button id="resetRound" data-i18n="resetRound"></button>
+</div>
+
+<h2 data-i18n="table"></h2>
+<div id="seats"></div>
+<button id="winBtn" data-i18n="winBtn"></button>
+
+<h2 data-i18n="standingsHelp"></h2>
+<textarea id="players" rows="12"></textarea>
+<datalist id="names"></datalist>
+
+<dialog id="win"><form id="winForm" method="dialog">
+  <h2 data-i18n="winTitle"></h2>
+  <div class="kind">
+    <label><input type="radio" name="kind" value="tsumo" checked><span>Tsumo</span></label>
+    <label><input type="radio" name="kind" value="ron"><span>Ron</span></label>
+    <label><input type="radio" name="kind" value="draw"><span data-i18n="draw"></span></label>
+  </div>
+  <div id="winRows">
+  <label data-i18n="winner"></label><div class="pick" id="winner"></div>
+  <div id="loserRow"><label data-i18n="dealtIn"></label><div class="pick" id="loser"></div></div>
+  <label data-i18n="points"></label><div id="ptsRow"></div>
+  <div id="presets"></div>
+  </div>
+  <div id="tenpaiRow"><label data-i18n="tenpai"></label><div class="pick" id="tenpai"></div></div>
+  <h2 data-i18n="preview"></h2>
+  <div id="preview"></div>
+  <div class="actions"><button value="cancel" formnovalidate data-i18n="cancel"></button><button id="apply" value="apply" data-i18n="apply"></button></div>
+</form></dialog>
+
+<dialog id="waitsDlg"><form method="dialog">
+  <h2><span data-i18n="waitsTitle"></span> — <span id="waitsName"></span></h2>
+  <div id="tiles"></div>
+  <div class="actions"><button type="button" id="waitsClear" data-i18n="clear"></button><button data-i18n="done"></button></div>
+</form></dialog>
+
+<script src="common.js"></script>
+<script src="dash.js"></script>
+<script>
+  $('u1').textContent = `${location.origin}/overlay.html`;
+  $('u2').textContent = `${location.origin}/ranking.html`;
+  $('u3').textContent = `${location.origin}/cams.html`;
+  $('seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="wind" id="w${i}"></span>
+    <input type="text" list="names" data-i18n-ph="player" data-k="seats.${i}.name">
+    <input type="number" step="100" data-k="seats.${i}.score" data-num>
+    <button data-waits="${i}" class="waitsBtn" id="wb${i}"></button>
+    <span>${[-1000, 1000].map(d => `<button data-seat="${i}" data-d="${d}">${d > 0 ? '+' : ''}${d}</button>`).join(' ')}</span>
+    <button data-riichi="${i}" id="r${i}" data-i18n="riichiBtn"></button></div>`).join('');
+  const pick = (name, type = 'radio') => [0, 1, 2, 3].map(i => `<label><input type="${type}" name="${name}" value="${i}"><span id="${name}${i}"></span></label>`).join('');
+  $('winner').innerHTML = pick('winner', 'checkbox'); // several only for ron (double/triple ron)
+  $('ptsRow').innerHTML = [0, 1, 2, 3].map(i => `<label id="ptsBox${i}"><span id="ptsName${i}"></span><input type="number" id="pts${i}" min="0" step="100"></label>`).join('');
+  $('loser').innerHTML = pick('loser');
+  $('tenpai').innerHTML = pick('tenpai', 'checkbox');
+  const PRESETS = [['Mangan', 8000], ['Haneman', 12000], ['Baiman', 16000], ['Sanbaiman', 24000], ['Yakuman', 32000]];
+  $('presets').innerHTML = PRESETS.map(([n, p]) => `<button type="button" data-p="${p}">${n}</button>`).join('');
+  $('tiles').innerHTML = TILES.map(t => `<button type="button" data-t="${t}"><img src="${tileSrc(t)}" alt="${t}"></button>`).join('');
+  applyLang();
+
+  let waitsSeat = null;
+  const MAX_WAITS = 3;
+  const waitsOf = i => (Array.isArray(state.seats[i].waits) ? state.seats[i].waits : []);
+  const dealerSeat = () => seatWinds(state.round.num).indexOf('東');
+  const seatName = i => state.seats[i].name || `${t('player')} ${i + 1}`;
+
+  onFill = () => {
+    if ($('players') !== document.activeElement) $('players').value = playersText(state.players);
+    $('names').innerHTML = state.players.map(p => `<option value="${esc(p.name)}">`).join('');
+    seatWinds(state.round.num).forEach((w, i) => ($(`w${i}`).textContent = w));
+    state.seats.forEach((s, i) => $(`r${i}`).classList.toggle('on', !!s.riichi));
+    state.seats.forEach((s, i) => ($(`wb${i}`).innerHTML = waitsOf(i).map(t => `<img src="${tileSrc(t)}" alt="${t}">`).join('') || t('waits')));
+    if (waitsSeat !== null) document.querySelectorAll('#tiles [data-t]').forEach(b => {
+      const w = waitsOf(waitsSeat), on = w.includes(b.dataset.t);
+      b.classList.toggle('on', on);
+      b.disabled = !on && w.length >= MAX_WAITS;
+    });
+  };
+
+  $('players').addEventListener('input', e => { state.players = parsePlayers(e.target.value); push(); });
+  // Snapshot taken whenever a hand starts, so "Reset hand" can undo whatever was typed during it.
+  // The one before it is kept too, so a misclicked win (which starts the next hand) can still be undone.
+  const clearRiichi = () => state.seats.forEach(s => { s.riichi = false; s.waits = []; });
+  const snap = () => {
+    clearRiichi();
+    state.lastHand = state.handStart;
+    state.handStart = { round: { ...state.round }, scores: state.seats.map(s => s.score) };
+  };
+  const untouched = h => JSON.stringify(h.round) === JSON.stringify(state.round) && h.scores.every((sc, i) => sc === state.seats[i].score);
+  $('next').onclick = () => { state.round = nextHand(state.round); snap(); push(); };
+  $('renchan').onclick = () => { state.round.honba++; snap(); push(); };
+  $('resetHand').onclick = () => {
+    let h = state.handStart;
+    if (!h) return alert(t('noSnap'));
+    if (untouched(h) && state.lastHand) h = state.lastHand; // nothing done yet this hand: step back to the previous one
+    if (!confirm(t('confirmHand'))) return;
+    if (h === state.lastHand) { state.handStart = h; state.lastHand = null; }
+    state.round = { ...h.round };
+    h.scores.forEach((sc, i) => (state.seats[i].score = sc));
+    clearRiichi();
+    push();
+  };
+  $('resetRound').onclick = () => {
+    if (!confirm(t('confirmRound').replace('{n}', fmt(state.startScore)))) return;
+    state.round = { wind: 0, num: 1, honba: 0, riichi: 0 };
+    state.seats.forEach(s => (s.score = state.startScore));
+    snap(); push();
+  };
+  $('seats').addEventListener('click', e => {
+    const b = e.target.closest('[data-seat]');
+    if (b) { state.seats[b.dataset.seat].score += +b.dataset.d; push(); }
+    const rb = e.target.closest('[data-riichi]');
+    if (rb) { toggleRiichi(state, +rb.dataset.riichi); push(); }
+    const wb = e.target.closest('[data-waits]');
+    if (wb) { waitsSeat = +wb.dataset.waits; $('waitsName').textContent = seatName(waitsSeat); fill(); $('waitsDlg').showModal(); }
+  });
+
+  // Waits picker: each click toggles a tile and goes live on the overlay right away.
+  $('tiles').onclick = e => {
+    const b = e.target.closest('[data-t]');
+    if (!b) return;
+    const w = waitsOf(waitsSeat), t = b.dataset.t;
+    if (!w.includes(t) && w.length >= MAX_WAITS) return;
+    state.seats[waitsSeat].waits = TILES.filter(x => (x === t) !== w.includes(x)); // toggle, kept in hand order
+    push();
+  };
+  $('waitsClear').onclick = () => { state.seats[waitsSeat].waits = []; push(); };
+
+  // Win modal: pick winner, tsumo/ron, who dealt in, the hand value; preview, then apply and advance the hand.
+  const form = $('winForm');
+  let ptsSeat = null; // the winner whose value box the presets fill
+  function readWin() {
+    const f = new FormData(form), kind = f.get('kind'), ws = f.getAll('winner').map(Number), l = f.get('loser');
+    if (kind === 'draw') return { draw: true, d: drawDeltas([0, 1, 2, 3].map(i => f.getAll('tenpai').includes(String(i)))) };
+    const pts = ws.map(i => +$(`pts${i}`).value);
+    if (!ws.length || !pts.every(p => p > 0)) return null;
+    if (kind === 'tsumo') return ws.length === 1 && { winners: ws, d: winDeltas(state, ws[0], null, pts[0]) };
+    if (l === null || ws.includes(+l)) return null;
+    return { winners: ws, d: ronDeltas(state, +l, ws.map((w, k) => [w, pts[k]])) };
+  }
+  function updWin(e) {
+    const boxes = [...form.querySelectorAll('[name=winner]')], kind = new FormData(form).get('kind');
+    if (e?.target.name === 'winner' && e.target.checked) ptsSeat = +e.target.value;
+    if (kind !== 'ron') { // tsumo: one winner only, keep the one picked last
+      const keep = boxes.find(b => b.checked && +b.value === ptsSeat) || boxes.find(b => b.checked);
+      boxes.forEach(b => (b.checked = b === keep));
+    }
+    const f = new FormData(form), ws = f.getAll('winner'), dealer = dealerSeat();
+    $('loserRow').hidden = f.get('kind') !== 'ron';
+    $('winRows').hidden = f.get('kind') === 'draw';
+    $('tenpaiRow').hidden = f.get('kind') !== 'draw';
+    [0, 1, 2, 3].forEach(i => {
+      $(`winner${i}`).textContent = $(`ptsName${i}`).textContent = $(`loser${i}`).textContent = $(`tenpai${i}`).textContent = `${seatWinds(state.round.num)[i]} ${seatName(i)}`;
+      const li = form.querySelector(`[name=loser][value="${i}"]`);
+      li.disabled = ws.includes(String(i));
+      if (li.disabled) li.checked = false;
+      $(`ptsBox${i}`).style.visibility = ws.includes(String(i)) ? '' : 'hidden';
+    });
+    const r = readWin();
+    $('apply').disabled = !r;
+    $('preview').innerHTML = r ? r.d.map((x, i) => `<span>${esc(seatName(i))}${i === dealer ? ' (東)' : ''}</span>` +
+      `<span class="${x > 0 ? 'up' : x < 0 ? 'down' : ''}">${x > 0 ? '+' : ''}${fmt(x)}</span><span>${fmt(state.seats[i].score + x)}</span>`).join('') : '—';
+  }
+  form.addEventListener('input', updWin);
+  $('ptsRow').addEventListener('focusin', e => (ptsSeat = +e.target.id.slice(3)));
+  $('presets').onclick = e => {
+    const p = e.target.dataset.p;
+    if (!p) return;
+    const ws = new FormData(form).getAll('winner').map(Number), w = ws.includes(ptsSeat) ? ptsSeat : ws[0];
+    if (w === undefined) return;
+    $(`pts${w}`).value = w === dealerSeat() ? p * 1.5 : p; // dealer gets 1.5x
+    ptsSeat = ws.find(i => !+$(`pts${i}`).value) ?? w; // double/triple ron: next preset fills the next empty winner
+    updWin();
+  };
+  $('winBtn').onclick = () => {
+    if (!state) return;
+    form.reset(); ptsSeat = null;
+    state.seats.forEach((s, i) => (form.querySelector(`[name=tenpai][value="${i}"]`).checked = !!s.riichi)); // riichi means tenpai
+    updWin(); $('win').showModal();
+  };
+  form.addEventListener('submit', e => {
+    if (e.submitter?.value !== 'apply') return;
+    const r = readWin();
+    if (!r) return e.preventDefault();
+    r.d.forEach((x, i) => (state.seats[i].score += x));
+    if (r.draw) { // sticks stay on the table for the next winner; honba +1 either way
+      const honba = state.round.honba + 1;
+      if (!new FormData(form).getAll('tenpai').includes(String(dealerSeat()))) state.round = nextHand(state.round); // dealer noten: deal passes
+      state.round.honba = honba;
+      snap(); push(); return;
+    }
+    const dealerWon = r.winners.includes(dealerSeat());
+    state.round.riichi = 0; // the winner took the sticks
+    if (dealerWon) state.round.honba++; else state.round = nextHand(state.round);
+    snap(); push();
+  });
+</script>
+</body>
+</html>

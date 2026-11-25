@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CZS</title>
+<link rel="stylesheet" href="dash.css">
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 8px; }
+  .item { background: #221f1a; border: 1px solid #554a33; border-radius: 4px; padding: 6px; }
+  .item img { display: block; width: 100%; height: 110px; object-fit: contain; background: #0b0a08; }
+  .item div { display: flex; gap: 4px; margin-top: 6px; }
+  .item button { flex: 1; padding: 2px; }
+  .empty { color: #b7ad99; font-size: 14px; }
+</style>
+</head>
+<body>
+<label><span data-i18n="rotate"></span> <input type="number" min="2" data-k="rotateSecs" data-num></label>
+<section data-list="banners"></section>
+<section data-list="sponsors"></section>
+
+<script src="common.js"></script>
+<script src="dash.js"></script>
+<script>
+  const LISTS = ['banners', 'sponsors'];
+  for (const k of LISTS) document.querySelector(`[data-list=${k}]`).innerHTML = `<h2 data-i18n="${k}"></h2>
+    <label><span data-i18n="upload"></span><br><input type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif" data-up="${k}"></label>
+    <div class="grid" id="${k}"></div>`;
+  applyLang();
+
+  onFill = () => LISTS.forEach(k => {
+    $(k).innerHTML = state[k].map((f, i) => `<div class="item"><img src="uploads/${encodeURIComponent(f)}" alt="">
+      <div><button data-k2="${k}" data-i="${i}" data-mv="-1" ${i ? '' : 'disabled'}>↑</button>
+      <button data-k2="${k}" data-i="${i}" data-mv="1" ${i < state[k].length - 1 ? '' : 'disabled'}>↓</button>
+      <button data-k2="${k}" data-i="${i}" data-del>✕</button></div></div>`).join('') || `<p class="empty">${t('empty')}</p>`;
+  });
+
+  document.addEventListener('change', async e => {
+    const k = e.target.dataset.up;
+    if (!k) return;
+    for (const file of e.target.files) {
+      const r = await fetch(`/api/upload?name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file }).catch(() => null);
+      if (!r?.ok) { alert(`${t('uploadFail')}: ${file.name}\n${r ? await r.text() : t('offline')}`); continue; }
+      state[k].push(await r.text());
+      push();
+    }
+    e.target.value = '';
+  });
+
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-k2]');
+    if (!b) return;
+    const list = state[b.dataset.k2], i = +b.dataset.i;
+    if ('del' in b.dataset) {
+      const [f] = list.splice(i, 1);
+      push();
+      fetch(`/api/upload/${encodeURIComponent(f)}`, { method: 'DELETE' });
+    } else {
+      const j = i + +b.dataset.mv;
+      [list[i], list[j]] = [list[j], list[i]];
+      push();
+    }
+  });
+</script>
+</body>
+</html>

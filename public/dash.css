@@ -1,0 +1,23 @@
+/* Dashboard pages. Same palette as the club shirt: near-black with a warm gold glow from the top. */
+body { font-family: system-ui, sans-serif; color: #eee; max-width: 900px; margin: 0 auto; padding: 0 16px 40px; min-height: 100vh;
+       background: radial-gradient(ellipse 120% 50% at 50% 0, #3a2a0e, transparent 70%) #0b0a08 no-repeat; background-attachment: fixed; }
+h1 { color: #f2b632; font-size: 22px; } h2 { color: #f2b632; font-size: 16px; margin: 20px 0 8px; }
+label { display: block; margin: 6px 0; font-size: 14px; color: #b7ad99; }
+input, select, textarea, button { font: inherit; background: #221f1a; color: #fff; border: 1px solid #554a33; border-radius: 4px; padding: 6px 8px; }
+input[type=text], textarea { width: 100%; box-sizing: border-box; }
+input[type=number] { width: 110px; }
+button { cursor: pointer; border-color: #f2b632; }
+button:hover:not(:disabled) { background: #f2b632; color: #000; }
+button:disabled { opacity: .4; cursor: default; }
+button.on { background: #c0392b; border-color: #c0392b; color: #fff; }
+.row { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
+.links { font-size: 13px; color: #b7ad99; } .links code { color: #fff; }
+
+nav { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 18px; padding: 10px 0; margin-bottom: 8px;
+      background: #0b0a08e6; border-bottom: 1px solid #554a33; }
+nav img { height: 32px; }
+nav a { color: #b7ad99; text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+nav a:hover { color: #fff; }
+nav a.cur { color: #f2b632; border-bottom-color: #f2b632; }
+nav select { margin-left: auto; }
+#status { font-size: 13px; min-width: 9em; text-align: right; }

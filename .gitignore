@@ -1,0 +1,8 @@
+# runtime data (live scores, player names, uploaded banners)
+state.json
+state.json.tmp
+public/uploads/
+
+# build output
+czs-livestreams
+czs-livestreams.exe
