@@ -22,7 +22,7 @@ Needs Go 1.24 or newer (Node only for the JS tests).
     go test               # server self-check
     node test.js          # scoring/overlay logic self-check
 
-**Password:** the first time you open the control panel it asks you to create a password (this has to be done on the computer running the server). After that, every browser has to type it once to use the panel. The OBS overlays don't need it. Forgot the password? Stop the server, run `go run . -reset-password` (or `./czs-livestreams -reset-password`, or just delete `password.json`), start it again and set a new one. Resetting logs out every browser. After 5 wrong passwords, that device has to wait 5 minutes before trying again.
+**Password:** the first time you open the control panel it asks you to create a password (this has to be done on the computer running the server, unless you start it with `go run . -remote-setup`, which lets any computer on the network create it). After that, every browser has to type it once to use the panel. The OBS overlays don't need it. Forgot the password? Stop the server, run `go run . -reset-password` (or `./czs-livestreams -reset-password`, or just delete `password.json`), start it again and set a new one. Resetting logs out every browser. After 5 wrong passwords, that device has to wait 5 minutes before trying again.
 
 | URL | What it is |
 | --- | --- |
@@ -65,7 +65,7 @@ The control panel has two pages (links at the top): **Game** (`/`) and **Banners
 - **Banners & sponsors** page: upload images (png, jpg, webp, gif, up to 10 MB), reorder or remove them. Sponsors rotate with the club logo in the bottom-right corner; banners rotate on the break screen (the mascot shows when there are none). Files go to `public/uploads/`.
 
 State is saved to `state.json`, so restarting the server keeps everything.
-To run the control panel from another computer or phone on the LAN: `HOST=0.0.0.0 go run .`. This has no password, so only do it on a trusted network.
+The control panel is reachable from other computers and phones on the LAN by default (it is password protected). To allow only this computer: `HOST=127.0.0.1 go run .`.
 
 ## License & credits
 The code is licensed under the [GNU General Public License v3.0](LICENSE).

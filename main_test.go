@@ -57,6 +57,14 @@ func TestServer(t *testing.T) {
 	if s.handler().ServeHTTP(rec, remote); rec.Code != 403 {
 		t.Fatalf("setup from LAN: %d", rec.Code)
 	}
+	// with -remote-setup the LAN may create it (checked on a throwaway server so the rest of the test is unchanged)
+	any := &server{pwFile: filepath.Join(dir, "any.json"), anySetup: true}
+	remote = httptest.NewRequest("POST", "/api/login", strings.NewReader("secret1"))
+	remote.RemoteAddr = "192.0.2.1:1234"
+	rec = httptest.NewRecorder()
+	if any.login(rec, remote); rec.Code != 200 {
+		t.Fatalf("remote setup with -remote-setup: %d", rec.Code)
+	}
 	if c := post("/api/login", "short"); c != 400 {
 		t.Fatalf("short password: %d", c)
 	}

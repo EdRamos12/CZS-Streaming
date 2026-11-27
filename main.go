@@ -43,13 +43,14 @@ const defaultState = `{"title":"Torneio CZS","subtitle":"","casters":"","startSc
 	`"round":{"wind":0,"num":1,"honba":0,"riichi":0},"seats":[{"name":"","score":25000},{"name":"","score":25000},{"name":"","score":25000},{"name":"","score":25000}],"players":[]}`
 
 type server struct {
-	mu      sync.Mutex
-	state   []byte // compact JSON, kept as-is so unknown fields survive
-	file    string
-	clients map[chan struct{}]bool
-	pwFile  string
-	pw      *password           // nil until the owner sets one
-	fails   map[string]failures // wrong logins per IP address
+	mu       sync.Mutex
+	state    []byte // compact JSON, kept as-is so unknown fields survive
+	file     string
+	clients  map[chan struct{}]bool
+	pwFile   string
+	pw       *password           // nil until the owner sets one
+	anySetup bool                // -remote-setup: the first password may be set from any computer
+	fails    map[string]failures // wrong logins per IP address
 }
 
 type failures struct {
@@ -106,7 +107,7 @@ func (s *server) authInfo(w http.ResponseWriter, r *http.Request) {
 	s.mu.Lock()
 	setup := s.pw == nil
 	s.mu.Unlock()
-	fmt.Fprintf(w, `{"setup":%t,"local":%t}`, setup, loopback(r))
+	fmt.Fprintf(w, `{"setup":%t,"local":%t}`, setup, s.anySetup || loopback(r))
 }
 
 // POST /api/login: checks the password, or sets it if none exists yet (only from this computer,
@@ -130,7 +131,7 @@ func (s *server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if s.pw == nil {
-		if !loopback(r) {
+		if !s.anySetup && !loopback(r) {
 			http.Error(w, "set the password from the computer running the server", 403)
 			return
 		}
@@ -285,6 +286,7 @@ func env(k, def string) string {
 
 func main() {
 	reset := flag.Bool("reset-password", false, "forget the control panel password; the next visit from this computer sets a new one")
+	remoteSetup := flag.Bool("remote-setup", false, "let any computer on the network create the control panel password (only while none is set)")
 	flag.Parse()
 	if *reset {
 		if err := os.Remove(pwFile); err != nil && !errors.Is(err, os.ErrNotExist) {
@@ -294,12 +296,12 @@ func main() {
 		return
 	}
 	port := env("PORT", "8787")
-	host := env("HOST", "127.0.0.1") // set HOST=0.0.0.0 to control from another device on the LAN
+	host := env("HOST", "0.0.0.0") // reachable from the LAN by default; set HOST=127.0.0.1 to allow only this computer
 	if err := os.MkdirAll(uploads, 0o755); err != nil {
 		log.Fatal(err)
 	}
 
-	s := &server{file: file, clients: map[chan struct{}]bool{}, state: []byte(defaultState), pwFile: pwFile}
+	s := &server{file: file, clients: map[chan struct{}]bool{}, state: []byte(defaultState), pwFile: pwFile, anySetup: *remoteSetup}
 	if b, err := os.ReadFile(pwFile); err == nil {
 		if json.Unmarshal(b, &s.pw) != nil {
 			log.Fatalf("%s is damaged: delete it or run with -reset-password", pwFile)
