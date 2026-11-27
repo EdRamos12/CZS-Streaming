@@ -29,7 +29,8 @@ Needs Go 1.24 or newer (Node only for the JS tests).
 | `http://localhost:8787/` | Control panel |
 | `/overlay.html` | In-game overlay (1920x1080) |
 | `/ranking.html` | Break / ranking screen |
-| `/cams.html` | Commentary scene |
+| `/cams1.html` | Commentary scene, 1 camera |
+| `/cams2.html` | Same, 2 cameras |
 | `/chat1.html` | In-game overlay with chat instead of the standings, 1 camera |
 | `/chat2.html` | Same, 2 cameras |
 
@@ -41,7 +42,7 @@ Needs Go 1.24 or newer (Node only for the JS tests).
    - 2 cameras: 1600,120 and 1600,336, both 320x180
    The ranking screen ("Scene → Ranking" or `ranking.html`) puts its camera boxes in the same column as the commentary chat, so the camera sources must move there (see step 4).
 4. Break/intermission scene: browser source `http://localhost:8787/ranking.html`, with the camera sources under it: 1 camera at 1403,123 sized 454x256; 2 cameras at 1403,123 and 1403,418, both 454x256.
-5. Commentary scene (cameras + chat): browser source `http://localhost:8787/cams.html` in its own OBS scene.
+5. Commentary scene (cameras + chat): browser source `http://localhost:8787/cams1.html` (1 camera) or `cams2.html` (2 cameras) in its own OBS scene. These pages ignore the panel's camera setting.
    - Cameras go **under** the browser source: 1 camera at 80,220 sized 1280x720; 2 cameras at 60,330 and 720,330, both 640x360.
    - Chat goes **above** it (e.g. the YouTube/Twitch pop-out chat as a browser source with a transparent background): 1403,111 sized 454x906.
 6. In-game with chat (instead of the standings): use `chat1.html` (always 1 camera) or `chat2.html` (always 2 cameras) in place of `overlay.html`. Cameras go at the same spots as step 3. Put the chat browser source **above** it, under the "Chat" heading: about 1600,380 sized 320x516 (1 camera) or 1600,596 sized 320x300 (2 cameras). These pages ignore the panel's camera setting.
@@ -70,5 +71,6 @@ The control panel is reachable from other computers and phones on the LAN by def
 ## License & credits
 The code is licensed under the [GNU General Public License v3.0](LICENSE).
 
-The club logo and mascot artwork (`public/assets/logo.png`, `pexe.png`, `nanda.png`, `ponte.svg`) © Clube Zona Sul, all rights reserved, not covered by the GPL.
+The club logo and mascot artwork (`public/assets/logo.png`, `icon.png`, `pexe.png`, `nanda.png`, `ponte.svg`) © Clube Zona Sul, all rights reserved, not covered by the GPL.
+Fonts (`public/assets/fonts/`): [Outfit](https://github.com/Outfitio/Outfit-Fonts), standing in for the club's Codec Pro, and [Shippori Mincho](https://github.com/fontdasu/ShipporiMincho) ExtraBold cut down to the ten kanji/kana the pages show. Both SIL Open Font License 1.1.
 Tile art: [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles), public domain (CC0).

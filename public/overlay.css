@@ -1,8 +1,10 @@
+/* Stream overlays (1920x1080 OBS browser sources). Only the fonts and the corner radius come from brand.css. */
+@import url(brand.css);
+/* On stream the colouring is the original club shirt look, not the control panel's palette: near-black with a warm gold glow from the top. */
 :root { --gold: #f2b632; --gold-dim: #a9781a; --ink: #0e0d0b; --panel: #0b0a08; --muted: #b7ad99; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; color: #fff;
-       font-family: "Segoe UI", system-ui, sans-serif; font-variant-numeric: tabular-nums; position: relative; }
-/* Club shirt look: near-black with a warm gold glow from the top */
+body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; color: var(--text);
+       font-family: var(--font); font-variant-numeric: tabular-nums; position: relative; }
 .panel { background: radial-gradient(ellipse 140% 100% at 50% 0, rgba(120, 85, 20, .3), transparent 70%), var(--panel); }
 
 /* Mahjong Soul capture goes under this frame: 1600x900 at 0,0 */
@@ -11,11 +13,12 @@ body { width: 1920px; height: 1080px; overflow: hidden; background: transparent;
 /* Right column: tournament title, 0-2 commentator camera holes, scrolling standings, sponsor corner */
 #side { position: absolute; left: 1600px; top: 0; width: 320px; height: 1080px; display: flex; flex-direction: column; }
 #head { height: 120px; flex: none; overflow: hidden; padding: 14px 20px; text-align: center; border-bottom: 2px solid var(--gold-dim); }
-#title { font-size: 30px; font-weight: 800; color: var(--gold); line-height: 1.1; }
+#title { font-size: 32px; font-weight: 800; color: var(--gold); line-height: .95; text-transform: uppercase; letter-spacing: -.01em; }
 #subtitle { font-size: 18px; font-weight: 600; margin-top: 4px; }
 #casters { font-size: 16px; color: var(--muted); margin-top: 6px; }
 #standings, #sideChat { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 16px 12px; border-bottom: 4px solid var(--gold); } /* lines up with the game frame's bottom edge */
-h3 { font-size: 16px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); margin: 0 4px 10px; }
+h3 { font-size: 20px; font-weight: 800; text-transform: uppercase; color: var(--gold); margin: 0 4px 10px; }
+body.noPlayers #standings h3, body.noPlayers #break > div > h3 { visibility: hidden; } /* no heading over an empty list */
 .view { flex: 1; min-height: 0; overflow: hidden; }
 .view ol { transition: transform 1.2s ease-in-out; }
 ol { list-style: none; display: grid; row-gap: 4px; }
@@ -24,7 +27,7 @@ li { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; h
 li .pos { color: var(--gold); font-weight: 800; }
 li .pn { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 li .pt { font-weight: 700; padding-left: 10px; }
-li .neg { color: #e56b5d; }
+li .neg { color: var(--loss); }
 .cam { height: 180px; flex: none; border: 3px solid var(--gold); border-width: 3px 0 0; transition: height .6s, opacity .6s, border-width .6s; }
 body.cam0 .cam, body.cam1 .cam2 { height: 0; opacity: 0; border-width: 0; }
 .camCasters, .camCasters2 { height: 36px; flex: none; display: grid; place-items: center; font-size: 16px; color: var(--muted); white-space: nowrap;
@@ -40,28 +43,28 @@ body:not(.cam0) #standings, body:not(.cam0) #sideChat { border-top: 3px solid va
 /* Bottom bar: round + four seats */
 #bar { position: absolute; left: 0; top: 900px; width: 1600px; height: 180px; display: flex; align-items: stretch; gap: 12px; padding: 16px; }
 #round { width: 210px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 2px solid var(--gold-dim); padding-right: 12px; }
-#roundName { font-size: 60px; font-weight: 800; color: var(--gold); line-height: 1; }
+#roundName { font-size: 60px; font-weight: 800; color: var(--gold); line-height: 1; text-transform: uppercase; letter-spacing: -.02em; }
 #sticks { font-size: 20px; color: var(--muted); margin-top: 10px; }
-#sticks b { color: #fff; }
+#sticks b { color: var(--text); }
 .seat { position: relative; flex: 1; min-width: 0; display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 14px; padding: 0 16px;
         background: rgba(255, 255, 255, .04); border-bottom: 5px solid transparent; transition: border-color .4s, background .4s; }
 .seat.first { border-bottom-color: var(--gold); background: rgba(242, 182, 50, .1); }
-.wind { width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--gold-dim); display: grid; place-items: center;
-        font-size: 36px; font-family: serif; line-height: 1; transition: background .4s, color .4s, border-color .4s; }
+.wind { width: 64px; height: 64px; border-radius: var(--r); border: 3px solid var(--gold-dim); display: grid; place-items: center;
+        font-size: 36px; line-height: 1; transition: background .4s, color .4s, border-color .4s; }
 .romaji #roundName, .pt #roundName { font-size: 42px; white-space: nowrap; }
 .seat.dealer .wind { background: var(--gold); color: var(--ink); border-color: var(--gold); }
 .name { font-size: 24px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .score { font-size: 40px; font-weight: 800; color: var(--gold); display: inline-block; }
-.diff { font-size: 16px; font-weight: 700; color: #e56b5d; min-height: 1.3em; opacity: 0; transition: opacity .4s; }
+.diff { font-size: 16px; font-weight: 700; color: var(--loss); min-height: 1.3em; opacity: 0; transition: opacity .4s; }
 .diff.on { opacity: 1; }
-.diff.gain { color: #6fcf7f; }
+.diff.gain { color: var(--gain); }
 /* Tenpai waits: small tiles under the score; they step aside while a point change is showing */
 .sub { display: grid; } .sub > * { grid-area: 1 / 1; }
 .waits { display: flex; gap: 4px; transition: opacity .4s; }
 .diff.on + .waits { opacity: 0; }
 .waits img { height: 36px; background: url(assets/tiles/Front.svg) center / contain no-repeat; animation: fade .4s; }
-/* Only name + score count for vertical centering, so they line up with the wind circle; stick and waits hang above/below */
-.seat > div:nth-child(2) { position: relative; line-height: 1; } /* 24px name + 40px score = 64px circle */
+/* Only name + score count for vertical centering, so they line up with the wind square; stick and waits hang above/below */
+.seat > div:nth-child(2) { position: relative; line-height: 1; } /* 24px name + 40px score = 64px square */
 .sub { position: absolute; top: 100%; left: 0; right: 0; }
 .place { font-size: 32px; font-weight: 800; color: var(--muted); }
 .seat.first .place { color: var(--gold); }
@@ -96,7 +99,7 @@ body.talk #game, body.talk #side, body.talk #bar { visibility: hidden; transitio
 .pexe { position: absolute; right: 520px; bottom: -60px; height: 900px; opacity: .1; transform: rotate(-8deg); }
 .scene header { position: relative; display: flex; align-items: center; gap: 32px; margin-bottom: 30px; }
 .scene header img { height: 120px; }
-.scene .t { font-size: 64px; font-weight: 800; color: var(--gold); }
+.scene .t { font-size: 72px; font-weight: 800; color: var(--gold); line-height: .95; text-transform: uppercase; letter-spacing: -.02em; }
 .scene .s { font-size: 34px; }
 
 /* Ranking. With cameras on, the right column repeats the game's camera boxes at the same spots, so the same OBS camera sources line up. */

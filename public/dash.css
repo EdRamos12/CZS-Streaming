@@ -1,33 +1,41 @@
-/* Dashboard pages. Same palette as the club shirt: near-black with a warm gold glow from the top. */
-:root { --gold: #f2b632; --line: #3a3326; --line2: #554a33; --muted: #b7ad99; --field: #1d1a15; --card: #15120ecc; --red: #c0392b; --green: #7bd88f; }
-body { font-family: system-ui, sans-serif; color: #eee; max-width: 1440px; margin: 0 auto; padding: 0 20px 40px; min-height: 100vh;
-       background: radial-gradient(ellipse 120% 50% at 50% 0, #3a2a0e, transparent 70%) #0b0a08 no-repeat; background-attachment: fixed; }
-h2 { color: var(--gold); font-size: 15px; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 12px; }
+/* Control panel pages (Game, Banners & sponsors, login). Colours, fonts and shapes come from brand.css; see its house rules. */
+@import url(brand.css);
+body { font-family: var(--font); color: var(--text); max-width: 1440px; margin: 0 auto; padding: 0 20px 40px; min-height: 100vh;
+       background: var(--grain), var(--page); }
+h2 { color: var(--gold); font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: -.01em; line-height: 1; margin: 0 0 14px; }
 .hint { color: var(--muted); font-size: 13px; margin: -6px 0 12px; }
-code { color: #fff; user-select: all; } /* one click selects a whole OBS URL */
+code { color: var(--text); user-select: all; } /* one click selects a whole OBS URL */
 
-.cols { display: grid; gap: 16px; align-items: start; }
-.cols > div { display: grid; gap: 16px; min-width: 0; }
+/* What the operator touches during a hand sits on one sheet of paper; what is set once per stream stays flat beside it. */
+.cols { display: grid; gap: 16px 32px; align-items: start; }
+.cols > * { min-width: 0; }
 @media (min-width: 1100px) { .cols { grid-template-columns: minmax(0, 3fr) minmax(340px, 2fr); } }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
+.sheet { background: var(--grain), var(--panel); padding: 20px 22px; }
+.sheet > section + section { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 20px; }
+.setup > section { border-top: 1px solid var(--line); padding: 18px 0 8px; }
+.setup > section:first-child { border-top: 0; }
+.setup h2 { color: var(--text); font-size: 14px; letter-spacing: .06em; margin-bottom: 12px; }
+.setup .hint { margin-top: -4px; }
 
 label { display: flex; flex-direction: column; gap: 4px; margin: 0 0 10px; font-size: 13px; color: var(--muted); }
-input, select, textarea, button { font: inherit; background: var(--field); color: #fff; border: 1px solid var(--line2); border-radius: 6px; padding: 7px 10px; }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); }
-input[type=text], textarea { width: 100%; box-sizing: border-box; }
+input, select, textarea, button { font: inherit; background: var(--well); color: var(--text); border: 1px solid var(--line2); border-radius: var(--r); padding: 7px 12px; }
+:is(input, select, textarea):focus-visible { outline: 2px solid var(--gold); outline-offset: -1px; }
+input[type=text], input[type=password], textarea { width: 100%; box-sizing: border-box; }
 input[type=number] { width: 110px; box-sizing: border-box; font-variant-numeric: tabular-nums; }
 input[type=file] { width: 100%; box-sizing: border-box; padding: 14px; border-style: dashed; color: var(--muted); cursor: pointer; }
-input[type=file]::file-selector-button { font: inherit; background: var(--gold); color: #000; border: 0; border-radius: 4px; padding: 6px 12px; margin-right: 10px; cursor: pointer; }
+input[type=file]:disabled { opacity: .5; cursor: progress; }
+input[type=file]::file-selector-button { font: inherit; background: var(--gold); color: var(--ink); border: 0; border-radius: var(--r); padding: 6px 14px; margin-right: 10px; cursor: pointer; }
 textarea { resize: vertical; font-variant-numeric: tabular-nums; }
 
-button { cursor: pointer; }
-button:hover:not(:disabled) { border-color: var(--gold); background: #2a251c; }
-button:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+button { cursor: pointer; background: var(--chip); border-color: var(--chip); padding: 7px 16px; } /* lighter than the panel; fields are darker */
+button:hover:not(:disabled) { background: var(--line2); border-color: var(--line2); }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 button:disabled { opacity: .4; cursor: default; }
-button.primary { background: var(--gold); border-color: var(--gold); color: #000; font-weight: 600; }
-button.primary:hover:not(:disabled) { background: #ffc94d; }
-button.danger:hover:not(:disabled) { border-color: var(--red); background: #3a1712; }
-button.on, button.on:hover:not(:disabled) { background: var(--red); border-color: var(--red); color: #fff; }
+button.primary { background: var(--gold); border-color: var(--gold); color: var(--ink); font-weight: 700; text-transform: uppercase; }
+button.primary:hover:not(:disabled) { background: var(--gold-hi); border-color: var(--gold-hi); }
+button.primary:focus-visible { outline-color: var(--text); }
+button.danger:hover:not(:disabled) { border-color: var(--red); background: var(--red-dim); }
+button.on, button.on:hover:not(:disabled) { background: var(--red); border-color: var(--red); }
 
 .row { display: flex; gap: 10px 12px; align-items: end; flex-wrap: wrap; }
 .row label { margin: 0; }
@@ -38,12 +46,15 @@ html { overflow-x: hidden; } /* 100vw below counts the scrollbar; don't let that
 /* Full-bleed bar: stretch to the window edges, pad back so the contents still line up with the page. */
 nav { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px;
       margin: 0 calc(50% - 50vw) 16px; padding: 10px calc(50vw - 50%);
-      background: #0b0a08e6; backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); }
+      background: var(--ink); border-bottom: 1px solid var(--line); }
 nav img { height: 32px; }
-nav a { color: var(--muted); text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
-nav a:hover { color: #fff; }
-nav a.cur { color: var(--gold); border-bottom-color: var(--gold); }
-nav select { margin-left: auto; }
-#status { font-size: 13px; min-width: 10em; text-align: right; color: var(--muted); }
-#status[data-k=saved] { color: var(--green); }
-#status[data-k=offline] { color: #ff7a6b; font-weight: 600; }
+nav a { color: var(--muted); text-decoration: none; padding: 5px 14px; border-radius: var(--r); font-weight: 600; }
+nav a:hover { color: var(--text); }
+nav a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+nav a.cur { color: var(--ink); background: var(--gold); }
+nav .tools { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+/* Link to the server: a small mark while all is well, a red block when edits are not reaching the stream. */
+#status { display: flex; align-items: center; justify-content: end; gap: 8px; min-width: 9em; font-size: 13px; color: var(--muted); white-space: nowrap; }
+#status::before { content: ''; width: 8px; height: 8px; background: currentColor; }
+#status:is([data-k=live], [data-k=saved])::before { background: var(--gain); }
+#status[data-k=offline] { min-width: 0; padding: 5px 12px; border-radius: var(--r); background: var(--red); color: var(--text); font-weight: 600; }

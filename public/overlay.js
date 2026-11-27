@@ -1,5 +1,5 @@
-// Shared by overlay.html (game, plus the ranking the control panel can fade in), ranking.html and cams.html.
-// ranking.html and cams.html pin their scene with <body data-scene>; chat1.html / chat2.html pin the camera count with <body data-camera>; commentary needs its own OBS scene, or the game capture would show through its camera holes.
+// Shared by overlay.html (game, plus the ranking the control panel can fade in), ranking.html and cams1.html / cams2.html.
+// ranking.html and cams1/2.html pin their scene with <body data-scene>; cams1/2.html and chat1/2.html pin the camera count with <body data-camera>; commentary needs its own OBS scene, or the game capture would show through its camera holes.
 const forced = document.body.dataset.scene, forcedCam = document.body.dataset.camera;
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -142,10 +142,11 @@ function render(s) {
   const all = (sel, text) => document.querySelectorAll(sel).forEach(el => (el.textContent = text));
   all('#title, .title', s.title);
   all('#subtitle, .subtitle', s.subtitle);
-  const mic = t => (t ? `🎙 ${t}` : '');
+  const mic = t => t || '';
   const both = mic([s.casters, s.casters2].filter(Boolean).join(' · '));
   all('#casters, .camCasters, .casters', s.camera === 2 ? mic(s.casters) : both);
   all('.camCasters2, .casters2', mic(s.casters2));
+  document.body.classList.toggle('noPlayers', !s.players.length);
   const html = standings(s.players).map(row).join('');
   setList($('top'), html);
   setList($('all'), html);

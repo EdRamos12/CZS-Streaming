@@ -1,0 +1,33 @@
+/* CZS brand tokens: the one place colours, type and shapes are defined. dash.css and overlay.css import this.
+   Taken from the club's own material, not picked by eye:
+   - Colours: the background of Nanda's card (nanda_instapostformat.psd). Near-black that darkens towards the bottom (#252526 layer,
+     #232323 to #151516 as painted), its gold (#F2BB37, glitter #F1CB65, the catfish line #796942) and the silver frame (#A4A4A9).
+     Steps between those blacks (--page, --chip, the lines) are filled in on the same neutral ramp.
+   - Shapes: Nanda's frame, so straight lines and square corners, broken by 發 and 中 at opposite corners where there is room.
+   - Type: Codec Pro Bold/Regular as on the Instagram posts; kanji in Shippori Mincho ExtraBold.
+   House rules, so the pages keep looking like the club and not like a template:
+   - Gold says "this is live": the headline, the primary action, the current selection, the dealer. Nothing else gets it.
+   - Rectangles everywhere: no pills, no circles. --r is the only corner radius; set it to 0 for dead-square corners.
+   - Buttons are lighter than the panel they sit on, fields are darker. That is how the two are told apart, not by shape.
+   - Page CSS uses these tokens. A new colour, radius or font is added here first, with where it comes from.
+   - No emoji as icons, no colour gradients, glows or glass as decoration, no coloured card borders.
+   - These colours and rules are the control panel's. The stream overlays keep their original colouring (club shirt: near-black
+     with a gold glow), set in overlay.css; from here they only take the fonts and --r.
+   - Kanji comes from the bundled mincho (below), never the system serif: OBS may run on another machine. */
+@font-face { font-family: Outfit; src: url(assets/fonts/Outfit.woff2) format("woff2"); font-weight: 100 900; } /* free stand-in for Codec Pro */
+/* Shippori Mincho B1 ExtraBold cut down to the characters the pages show (東南西北 局 中發 リーチ). One weight covers all, so bold is never faked. */
+@font-face { font-family: "CZS Kanji"; src: url(assets/fonts/ShipporiMincho-kanji.woff2) format("woff2"); font-weight: 100 900;
+             unicode-range: U+6771, U+5357, U+897F, U+5317, U+5C40, U+4E2D, U+767C, U+30EA, U+30FC, U+30C1; }
+:root {
+  --font: "CZS Kanji", "Codec Pro", Outfit, sans-serif;
+  --gold: #f2bb37; --gold-hi: #f1cb65; --gold-dim: #796942;
+  /* Nanda's blacks, darkest to lightest */
+  --ink: #151516; --well: #19191a; --page: #1c1c1d; --panel: #252526; --chip: #3a3a3d;
+  --line: #343436; --line2: #48484b;
+  --silver: #a4a4a9; /* frame line and corner characters */
+  --text: #fff; --muted: var(--silver); --scrim: #000a;
+  /* Not on the card; these only carry meaning */
+  --red: #c0392b; --red-dim: #3a1712; /* riichi, destructive */
+  --loss: #e56b5d; --gain: #6fcf7f;   /* points down / up, errors / saved */
+  --r: 2px;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}

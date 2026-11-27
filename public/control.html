@@ -3,51 +3,57 @@
 <head>
 <meta charset="utf-8">
 <title>CZS</title>
+<link rel="icon" href="assets/icon.png">
 <link rel="stylesheet" href="dash.css">
 <style>
-  .roundNow { color: #fff; font-family: serif; font-size: 22px; letter-spacing: 0; margin-left: 6px; text-transform: none; }
-  .seat { display: grid; grid-template-columns: 44px minmax(120px, 1fr) 110px auto auto auto auto; gap: 8px; align-items: center;
-          padding: 6px 8px; margin: 0 -8px; border-radius: 8px; }
-  .seat.dealer { background: #f2b63214; box-shadow: inset 3px 0 var(--gold); }
+  .roundNow { color: var(--text); font-size: 26px; font-weight: 700; letter-spacing: 0; margin-left: 8px; text-transform: none; }
+  .seat { display: grid; grid-template-columns: 48px minmax(120px, 1fr) 110px auto auto auto; gap: 8px; align-items: center; padding: 6px 8px; margin: 0 -8px; }
+  .seat.dealer { box-shadow: inset 0 0 0 2px var(--gold); }
   .seat.dealer .wind { color: var(--gold); }
-  .wind { font-size: 26px; line-height: 1.1; text-align: center; font-family: serif; }
-  .wind small { display: block; font: 11px system-ui, sans-serif; color: var(--muted); }
+  /* Same wind badge as the seat on stream: ink square, gold for the dealer */
+  .wind { display: grid; justify-items: center; gap: 3px; font-size: 11px; line-height: 1; color: var(--muted); }
+  .wind b { width: 34px; height: 34px; border-radius: var(--r); display: grid; place-items: center; background: var(--ink); color: var(--text); font-size: 20px; font-weight: 400; }
+  .wind small { font-size: inherit; }
+  .seat.dealer .wind b { background: var(--gold); color: var(--ink); }
   .seat input[type=number] { width: 100%; font-size: 17px; }
   @media (max-width: 640px) { .seat { display: flex; flex-wrap: wrap; } .seat input[type=text] { flex: 1; width: auto; min-width: 0; } .seat input[type=number] { width: 110px; } }
   #winBtn { width: 100%; font-size: 18px; padding: 12px 18px; margin-top: 14px; }
   .links p { margin: 0 0 10px; font-size: 13px; color: var(--muted); }
-  dialog { background: #16130f; color: #eee; border: 1px solid var(--gold); border-radius: 12px; padding: 20px 22px; width: min(600px, 92vw); }
-  dialog::backdrop { background: #000a; }
-  dialog h2:first-child { margin-top: 0; }
+  .links code { overflow-wrap: anywhere; }
+  /* Dialogs get the gold frame the camera and chat boxes have on stream */
+  dialog { background: var(--grain), var(--panel); color: var(--text); border: 2px solid var(--gold); padding: 20px 22px; width: min(600px, 92vw); }
+  dialog::backdrop { background: var(--scrim); }
+  dialog h2:not(:first-child) { margin-top: 20px; }
   .pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 6px; }
   .pick label, .kind label { margin: 0; font-size: 14px; }
   .pick input, .kind input { position: absolute; opacity: 0; }
-  .pick span, .kind span { display: block; text-align: center; padding: 8px 4px; border: 1px solid #554a33; border-radius: 6px; color: #fff; cursor: pointer;
+  .pick span, .kind span { display: block; text-align: center; padding: 8px 4px; border: 1px solid var(--line2); border-radius: var(--r); color: var(--text); cursor: pointer;
                            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pick input:checked + span, .kind input:checked + span { background: #f2b632; color: #000; border-color: #f2b632; }
+  .pick input:checked + span, .kind input:checked + span { background: var(--gold); color: var(--ink); border-color: var(--gold); }
   .pick input:disabled + span { opacity: .3; cursor: default; }
-  .pick input:focus-visible + span, .kind input:focus-visible + span { outline: 2px solid #fff; }
-  .kind { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin: 10px 0; }
+  .pick input:focus-visible + span, .kind input:focus-visible + span { outline: 2px solid var(--text); outline-offset: 2px; }
+  .kind { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin: 0 0 14px; }
   #ptsRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   #ptsRow label { margin: 0; }
   #ptsRow span { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #ptsRow input { width: 100%; box-sizing: border-box; }
-  #presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-  #preview { display: grid; grid-template-columns: 1fr auto auto; gap: 2px 16px; margin: 6px 0 14px; font-variant-numeric: tabular-nums; }
-  #preview .up { color: #7bd88f; } #preview .down { color: #e56b5d; }
-  .waitsBtn { display: flex; gap: 2px; align-items: center; min-width: 90px; min-height: 36px; }
+  #presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  #preview { display: grid; grid-template-columns: 1fr auto auto; gap: 4px 16px; margin: 0 0 16px; font-variant-numeric: tabular-nums; }
+  #preview span:nth-child(3n) { text-align: right; font-weight: 700; }
+  #preview .up { color: var(--gain); } #preview .down { color: var(--loss); }
+  .waitsBtn { display: flex; gap: 2px; align-items: center; justify-content: center; min-width: 90px; min-height: 36px; }
   .waitsBtn img, #tiles img { background: url(assets/tiles/Front.svg) center / contain no-repeat; }
   .waitsBtn img { height: 26px; }
   #tiles { display: grid; grid-template-columns: repeat(9, 1fr); gap: 4px; margin: 10px 0 14px; }
-  #tiles button { padding: 2px; border-color: #554a33; } #tiles img { width: 100%; display: block; }
-  #tiles button.on { background: #f2b632; border-color: #f2b632; }
+  #tiles button { padding: 2px; background: var(--well); border-color: var(--line2); } #tiles img { width: 100%; display: block; }
+  #tiles button.on { background: var(--gold); border-color: var(--gold); }
   .actions { display: flex; justify-content: end; gap: 8px; }
 </style>
 </head>
 <body>
 <main class="cols">
-<div>
-<section class="card">
+<div class="sheet">
+<section>
   <h2><span data-i18n="round"></span> <b class="roundNow" id="roundNow"></b></h2>
   <div class="row">
     <label><span data-i18n="wind"></span> <select data-k="round.wind" data-num><option value="0" data-i18n="east"></option><option value="1" data-i18n="south"></option><option value="2" data-i18n="west"></option><option value="3" data-i18n="north"></option></select></label>
@@ -64,7 +70,7 @@
   </div>
 </section>
 
-<section class="card">
+<section>
   <h2 data-i18n="table"></h2>
   <p class="hint" data-i18n="tableHelp"></p>
   <div id="seats"></div>
@@ -72,8 +78,8 @@
 </section>
 </div>
 
-<div>
-<section class="card">
+<div class="setup">
+<section>
   <h2 data-i18n="broadcast"></h2>
   <label><span data-i18n="title"></span> <input type="text" data-k="title"></label>
   <label><span data-i18n="subtitle"></span> <input type="text" data-k="subtitle"></label>
@@ -81,7 +87,7 @@
   <label><span data-i18n="casters2"></span> <input type="text" data-k="casters2"></label>
 </section>
 
-<section class="card">
+<section>
   <h2 data-i18n="scene"></h2>
   <div class="row">
     <label><span data-i18n="camera"></span> <select data-k="camera" data-num><option value="0" data-i18n="hidden"></option><option value="1" data-i18n="oneCam"></option><option value="2" data-i18n="twoCams"></option></select></label>
@@ -91,18 +97,20 @@
   </div>
 </section>
 
-<section class="card">
+<section>
   <h2 data-i18n="standings"></h2>
   <p class="hint" data-i18n="standingsHelp"></p>
   <textarea id="players" rows="10"></textarea>
   <datalist id="names"></datalist>
 </section>
 
-<section class="card links">
+<section class="links">
   <h2 data-i18n="sources"></h2>
+  <p class="hint" data-i18n="sourcesHint"></p>
   <p><span data-i18n="inGame"></span><br><code id="u1"></code></p>
   <p><span data-i18n="breakScreen"></span><br><code id="u2"></code></p>
-  <p><span data-i18n="talkScreen"></span><br><code id="u3"></code></p>
+  <p><span data-i18n="talk1"></span><br><code id="u3"></code></p>
+  <p><span data-i18n="talk2"></span><br><code id="u6"></code></p>
   <p><span data-i18n="chat1"></span><br><code id="u4"></code></p>
   <p><span data-i18n="chat2"></span><br><code id="u5"></code></p>
 </section>
@@ -139,7 +147,8 @@
 <script>
   $('u1').textContent = `${location.origin}/overlay.html`;
   $('u2').textContent = `${location.origin}/ranking.html`;
-  $('u3').textContent = `${location.origin}/cams.html`;
+  $('u3').textContent = `${location.origin}/cams1.html`;
+  $('u6').textContent = `${location.origin}/cams2.html`;
   $('u4').textContent = `${location.origin}/chat1.html`;
   $('u5').textContent = `${location.origin}/chat2.html`;
   $('seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="wind" id="w${i}"></span>
@@ -168,7 +177,7 @@
     if ($('players') !== document.activeElement) $('players').value = playersText(state.players);
     $('names').innerHTML = state.players.map(p => `<option value="${esc(p.name)}">`).join('');
     // wind name under the kanji, taken from the round-wind option text ('東 Leste' -> 'Leste')
-    seatWinds(state.round.num).forEach((w, i) => { $(`w${i}`).innerHTML = `${w}<small>${t(['east', 'south', 'west', 'north'][WINDS.indexOf(w)]).split(' ')[1]}</small>`; $(`w${i}`).parentNode.classList.toggle('dealer', w === '東'); });
+    seatWinds(state.round.num).forEach((w, i) => { $(`w${i}`).innerHTML = `<b>${w}</b><small>${t(['east', 'south', 'west', 'north'][WINDS.indexOf(w)]).split(' ')[1]}</small>`; $(`w${i}`).parentNode.classList.toggle('dealer', w === '東'); });
     $('roundNow').textContent = `${WINDS[state.round.wind]}${state.round.num}局`;
     state.seats.forEach((s, i) => $(`r${i}`).classList.toggle('on', !!s.riichi));
     state.seats.forEach((s, i) => ($(`wb${i}`).innerHTML = waitsOf(i).map(t => `<img src="${tileSrc(t)}" alt="${t}">`).join('') || t('waits')));

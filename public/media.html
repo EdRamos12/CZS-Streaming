@@ -3,50 +3,67 @@
 <head>
 <meta charset="utf-8">
 <title>CZS</title>
+<link rel="icon" href="assets/icon.png">
 <link rel="stylesheet" href="dash.css">
 <style>
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 8px; }
+  .speed { flex-direction: row; align-items: center; gap: 10px; margin: 0 0 16px; }
+  .speed input { width: 80px; }
   @media (min-width: 900px) { .cols { grid-template-columns: 1fr 1fr; } }
-  .item { background: var(--field); border: 1px solid var(--line2); border-radius: 8px; padding: 6px; }
-  .item img { display: block; width: 100%; height: 110px; object-fit: contain; background: #0b0a08; border-radius: 4px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 8px; }
+  .item { background: var(--well); border: 1px solid var(--line2); border-radius: var(--r); padding: 6px; }
+  .item img { display: block; width: 100%; height: 110px; object-fit: contain; }
   .item div { display: flex; gap: 4px; margin-top: 6px; }
   .item button { flex: 1; padding: 2px; }
-  .empty { color: #b7ad99; font-size: 14px; }
+  .empty, .note { color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+  .empty { grid-column: 1 / -1; }
+  .note:empty { display: none; }
+  .note.bad { color: var(--loss); }
 </style>
 </head>
 <body>
-<section class="card" style="margin-bottom: 16px"><label style="margin: 0"><span data-i18n="rotate"></span> <input type="number" min="2" data-k="rotateSecs" data-num></label></section>
+<label class="speed"><span data-i18n="rotate"></span> <input type="number" min="2" data-k="rotateSecs" data-num></label>
 <main class="cols">
-<section class="card" data-list="banners"></section>
-<section class="card" data-list="sponsors"></section>
+<section class="sheet" data-list="banners"></section>
+<section class="sheet" data-list="sponsors"></section>
 </main>
 
 <script src="common.js"></script>
 <script src="dash.js"></script>
 <script>
   const LISTS = ['banners', 'sponsors'];
+  const cap = s => s[0].toUpperCase() + s.slice(1);
   for (const k of LISTS) document.querySelector(`[data-list=${k}]`).innerHTML = `<h2 data-i18n="${k}"></h2>
+    <p class="hint" data-i18n="${k}Hint"></p>
     <label><span data-i18n="upload"></span> <input type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif" data-up="${k}"></label>
+    <p class="note" id="${k}Note" role="status"></p>
     <div class="grid" id="${k}"></div>`;
   applyLang();
 
   onFill = () => LISTS.forEach(k => {
+    const btn = (i, attr, label, text, off) => `<button data-k2="${k}" data-i="${i}" ${attr} title="${t(label)}" aria-label="${t(label)}" ${off ? 'disabled' : ''}>${text}</button>`;
     $(k).innerHTML = state[k].map((f, i) => `<div class="item"><img src="uploads/${encodeURIComponent(f)}" alt="">
-      <div><button data-k2="${k}" data-i="${i}" data-mv="-1" ${i ? '' : 'disabled'}>↑</button>
-      <button data-k2="${k}" data-i="${i}" data-mv="1" ${i < state[k].length - 1 ? '' : 'disabled'}>↓</button>
-      <button data-k2="${k}" data-i="${i}" data-del>✕</button></div></div>`).join('') || `<p class="empty">${t('empty')}</p>`;
+      <div>${btn(i, 'data-mv="-1"', 'moveUp', '↑', !i)}${btn(i, 'data-mv="1"', 'moveDown', '↓', i === state[k].length - 1)}${btn(i, 'data-del', 'remove', '✕')}</div></div>`).join('')
+      || `<p class="empty">${t(`empty${cap(k)}`)}</p>`;
   });
 
+  // Upload one file at a time, saying which one is going; failures stay on the page instead of an alert per file.
+  const note = (k, text, bad = false) => { $(`${k}Note`).textContent = text; $(`${k}Note`).classList.toggle('bad', bad); };
   document.addEventListener('change', async e => {
-    const k = e.target.dataset.up;
+    const input = e.target, k = input.dataset.up;
     if (!k) return;
-    for (const file of e.target.files) {
+    const files = [...input.files], failed = [];
+    input.disabled = true;
+    for (const [i, file] of files.entries()) {
+      note(k, t('uploading').replace('{i}', i + 1).replace('{n}', files.length));
       const r = await fetch(`/api/upload?name=${encodeURIComponent(file.name)}`, { method: 'POST', body: file }).catch(() => null);
-      if (!r?.ok) { alert(`${t('uploadFail')}: ${file.name}\n${r ? await r.text() : t('offline')}`); continue; }
+      if (r?.status === 401) return (location.href = '/login.html');
+      if (!r?.ok) { failed.push(`${file.name} (${r ? (await r.text()).trim() : t('offline')})`); continue; }
       state[k].push(await r.text());
       push();
     }
-    e.target.value = '';
+    input.disabled = false;
+    input.value = '';
+    note(k, failed.length ? `${t('uploadFail')}: ${failed.join(', ')}` : '', true);
   });
 
   document.addEventListener('click', e => {

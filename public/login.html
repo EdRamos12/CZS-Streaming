@@ -3,18 +3,27 @@
 <head>
 <meta charset="utf-8">
 <title>CZS</title>
+<link rel="icon" href="assets/icon.png">
 <link rel="stylesheet" href="dash.css">
 <style>
-  form { max-width: 340px; margin: 18vh auto 0; }
-  img { display: block; height: 64px; margin: 0 auto 16px; }
+  /* The frame from Nanda's card: a thin silver line that stops short of 發 (top right) and 中 (bottom left).
+     Drawn as four line segments so nothing has to be painted over at the corners. */
+  form { --gap: 30px; --seg: linear-gradient(var(--silver) 0 0); position: relative; max-width: 340px; margin: 16vh auto 0; padding: 38px 36px 34px;
+         background: var(--seg) 0 0 / calc(100% - var(--gap)) 2px, var(--seg) 100% 100% / 2px calc(100% - var(--gap)),
+                     var(--seg) 100% 100% / calc(100% - var(--gap)) 2px, var(--seg) 0 0 / 2px calc(100% - var(--gap));
+         background-repeat: no-repeat; }
+  form::before, form::after { position: absolute; font-size: 30px; line-height: 1; color: var(--silver); }
+  form::before { content: '發'; top: 0; right: 0; transform: translate(50%, -50%); }
+  form::after { content: '中'; bottom: 0; left: 0; transform: translate(-50%, 50%); }
+  img { display: block; height: 64px; margin: 0 auto 22px; }
   button { width: 100%; }
   [hidden] { display: none !important; } /* dash.css label{display:flex} would override it */
-  #msg { color: #ff7a6b; min-height: 1.2em; font-size: 14px; }
+  #msg { color: var(--loss); min-height: 1.2em; font-size: 14px; }
 </style>
 </head>
 <body>
-<form class="card" id="f">
-  <img src="assets/logo.png" alt="CZS">
+<form id="f">
+  <img src="assets/logo.png" alt="Clube Zona Sul de Riichi Mahjong">
   <h2 id="title"></h2>
   <p class="hint" id="hint"></p>
   <label><span id="l1"></span> <input type="password" id="pw" required autofocus autocomplete="current-password"></label>
@@ -28,30 +37,36 @@
     ? { login: 'Entrar', setup: 'Criar senha', pw: 'Senha', pw2: 'Repita a senha', mismatch: 'As senhas não são iguais',
         setupHint: 'Primeiro acesso: escolha a senha do painel (mín. 6 caracteres).',
         remote: 'Ainda não há senha. Crie a senha no computador que roda o servidor.',
-        forgot: 'Esqueceu? No servidor, rode com -reset-password (ou apague password.json) e crie outra.' }
+        forgot: 'Esqueceu? No servidor, rode com -reset-password (ou apague password.json) e crie outra.',
+        offline: 'Servidor inacessível. Ele está rodando?' }
     : { login: 'Log in', setup: 'Create password', pw: 'Password', pw2: 'Repeat password', mismatch: "Passwords don't match",
         setupHint: 'First run: choose the control panel password (at least 6 characters).',
         remote: 'No password yet. Create it on the computer running the server.',
-        forgot: 'Forgot it? On the server, run with -reset-password (or delete password.json) and set a new one.' };
+        forgot: 'Forgot it? On the server, run with -reset-password (or delete password.json) and set a new one.',
+        offline: 'Server not reachable. Is it running?' };
   const $ = id => document.getElementById(id);
   document.documentElement.lang = pt ? 'pt-BR' : 'en';
   $('l1').textContent = T.pw; $('l2').textContent = T.pw2;
+  $('title').textContent = $('go').textContent = T.login; // until the server says whether a password exists
   let setup = false;
   fetch('/api/auth').then(r => r.json()).then(a => {
     setup = a.setup;
+    document.title = `${setup ? T.setup : T.login} · CZS`;
     $('title').textContent = $('go').textContent = setup ? T.setup : T.login;
     $('hint').textContent = setup ? (a.local ? T.setupHint : T.remote) : T.forgot;
     $('row2').hidden = !setup;
     $('pw2').required = setup;
     $('pw').autocomplete = setup ? 'new-password' : 'current-password';
     if (setup && !a.local) $('go').disabled = true;
-  });
+  }).catch(() => ($('msg').textContent = T.offline));
   $('f').onsubmit = async e => {
     e.preventDefault();
     if (setup && $('pw').value !== $('pw2').value) return $('msg').textContent = T.mismatch;
+    $('go').disabled = true; // the server takes a moment to hash the password; don't let a second click through
     const r = await fetch('/api/login', { method: 'POST', body: $('pw').value }).catch(() => null);
-    if (r?.ok) location.href = '/';
-    else $('msg').textContent = r ? await r.text() : 'offline';
+    if (r?.ok) return (location.href = '/');
+    $('go').disabled = false;
+    $('msg').textContent = r ? await r.text() : T.offline;
   };
 </script>
 </body>
