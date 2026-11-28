@@ -54,4 +54,11 @@ assert.deepStrictEqual(c.drawDeltas([true, true, true, true]), [0, 0, 0, 0]);
 assert.strictEqual(c.TILES.length, 34);
 for (const t of c.TILES) assert.ok(require('fs').existsSync(`${__dirname}/public/${c.tileSrc(t)}`), t);
 
+
+// Info screen Markdown: escapes HTML, handles headings, lists, emphasis, breaks.
+assert.strictEqual(c.md('# Hi *you*\n\n- **a**\n- `b`\n\n1. x\n2. y\n\nline <script>\nnext'),
+  '<h1>Hi <i>you</i></h1><ul><li><b>a</b></li><li><code>b</code></li></ul><ol><li>x</li><li>y</li></ol><p>line &#60;script&#62;<br>next</p>');
+assert.strictEqual(c.md(''), '');
+assert.strictEqual(c.md('# A\n## B\ntext\n- [ ] no\n- [x] yes'),
+  '<h1>A</h1><h2>B</h2><p>text</p><ul><li><span class="check">☐</span> no</li><li><span class="check">☑</span> yes</li></ul>');
 console.log('all tests passed');

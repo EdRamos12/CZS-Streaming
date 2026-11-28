@@ -45,21 +45,20 @@ body:not(.cam0) #standings, body:not(.cam0) #sideChat { border-top: var(--frame)
 .slides img.on { opacity: 1; }
 
 /* Bottom bar: round + four seats */
-#bar { position: absolute; left: 0; top: 900px; width: 1600px; height: 180px; display: flex; align-items: stretch; padding: 16px; }
-#round { width: 210px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding-right: 12px; }
+#bar { position: absolute; left: 0; top: 900px; width: 1600px; height: 180px; display: flex; align-items: stretch; gap: 12px; padding: 16px; }
+#round { width: 210px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-right: 2px solid var(--gold-dim); padding-right: 12px; }
 #roundName { font-size: 60px; font-weight: 800; color: var(--gold); line-height: 1; text-transform: uppercase; letter-spacing: -.02em; }
 #sticks { font-size: 20px; color: var(--muted); margin-top: 10px; }
 #sticks b { color: var(--text); }
 .seat { position: relative; flex: 1; min-width: 0; display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 14px; padding: 0 16px;
-        border-left: var(--hair); border-bottom: var(--frame) solid transparent; transition: border-color .4s; }
-.seat.first { border-bottom-color: var(--gold); }
+        background: rgba(255, 255, 255, .04); border-bottom: 5px solid transparent; transition: border-color .4s, background .4s; }
+.seat.first { border-bottom-color: var(--gold); background: rgba(242, 182, 50, .1); }
 .wind { width: 64px; height: 64px; border-radius: var(--r); border: 3px solid var(--gold-dim); display: grid; place-items: center;
         font-size: 36px; line-height: 1; transition: background .4s, color .4s, border-color .4s; }
 .romaji #roundName, .pt #roundName { font-size: 42px; white-space: nowrap; }
 .seat.dealer .wind { background: var(--gold); color: var(--ink); border-color: var(--gold); }
 .name { font-size: 24px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.score { font-size: 40px; font-weight: 800; display: inline-block; }
-.seat.first .score { color: var(--gold); }
+.score { font-size: 40px; font-weight: 800; color: var(--gold); display: inline-block; }
 .diff { font-size: 16px; font-weight: 700; color: var(--loss); min-height: 1.3em; opacity: 0; transition: opacity .4s; }
 .diff.on { opacity: 1; }
 .diff.gain { color: var(--gain); }
@@ -140,3 +139,19 @@ body.cam2 #tCasters { left: 60px; width: 640px; top: 715px; }
 .pop { animation: pop .7s var(--ease); }
 @keyframes pop { 30% { transform: scale(1.12); filter: brightness(1.6); } }
 @keyframes fade { from { opacity: 0; transform: translateX(12px); } }
+
+/* Info screen (info.html): the commentary scene with banners + operator Markdown text where the camera would be */
+#info { position: absolute; left: 80px; top: 220px; width: 1280px; height: 720px; display: flex; gap: 40px; }
+#info > * { flex: 1; min-width: 0; height: auto; }
+#infoView:has(#infoText:empty) { display: none; } /* no text: the banner gets the whole box */
+#infoView { padding: 8px 0 0 40px; border-left: var(--hair); }
+#infoText { font-size: 30px; line-height: 1.35; }
+#infoText > * + * { margin-top: 18px; }
+#infoText :is(h1, h2, h3) { color: var(--gold); font-weight: 800; line-height: 1; text-transform: uppercase; letter-spacing: -.01em; margin-left: 0; }
+#infoText h1 { font-size: 52px; } #infoText h2 { font-size: 40px; } #infoText h3 { font-size: 32px; }
+#infoText b { color: var(--gold); }
+#infoText code { font-size: .9em; padding: 0 .25em; border-radius: var(--r); background: rgba(255, 255, 255, .08); }
+#infoText :is(ul, ol) { display: block; list-style: revert; padding-left: 1.2em; }
+#infoText li { display: list-item; height: auto; font-size: inherit; padding: 2px 0; border: 0; animation: none; } /* undo the standings rows */
+#infoText li:has(> .check:first-child) { list-style: none; margin-left: -1.2em; } /* checkbox replaces the bullet */
+#infoText .check { color: var(--gold); }

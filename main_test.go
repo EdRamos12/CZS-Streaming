@@ -138,7 +138,7 @@ func TestServer(t *testing.T) {
 	if c := post("/api/upload?name=x.svg", "<svg/>"); c != 400 {
 		t.Errorf("svg upload: %d", c)
 	}
-	for p, want := range map[string]int{"/": 200, "/media.html": 200, "/overlay.html": 200, "/cams1.html": 200, "/cams2.html": 200, "/chat1.html": 200, "/chat2.html": 200, "/login.html": 200, "/nope.html": 404, "/../state.json": 404} {
+	for p, want := range map[string]int{"/": 200, "/media.html": 200, "/overlay.html": 200, "/cams1.html": 200, "/cams2.html": 200, "/chat1.html": 200, "/chat2.html": 200, "/info.html": 200, "/login.html": 200, "/nope.html": 404, "/../state.json": 404} {
 		r, _ := http.Get(ts.URL + p)
 		if r.Body.Close(); r.StatusCode != want {
 			t.Errorf("GET %s: %d, want %d", p, r.StatusCode, want)

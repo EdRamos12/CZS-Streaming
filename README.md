@@ -33,6 +33,7 @@ Needs Go 1.24 or newer (Node only for the JS tests).
 | `/cams2.html` | Same, 2 cameras |
 | `/chat1.html` | In-game overlay with chat instead of the standings, 1 camera |
 | `/chat2.html` | Same, 2 cameras |
+| `/info.html` | Info scene: banners + your Markdown text + chat, no camera |
 
 ## OBS setup (canvas 1920x1080)
 1. **Window/Game Capture** of Mahjong Soul. Place it at 0,0 and size it to 1600x900.
@@ -46,7 +47,8 @@ Needs Go 1.24 or newer (Node only for the JS tests).
    - Cameras go **under** the browser source: 1 camera at 80,220 sized 1280x720; 2 cameras at 60,330 and 720,330, both 640x360.
    - Chat goes **above** it (e.g. the YouTube/Twitch pop-out chat as a browser source with a transparent background): 1403,111 sized 454x906.
 6. In-game with chat (instead of the standings): use `chat1.html` (always 1 camera) or `chat2.html` (always 2 cameras) in place of `overlay.html`. Cameras go at the same spots as step 3. Put the chat browser source **above** it, under the "Chat" heading: about 1600,380 sized 320x516 (1 camera) or 1600,596 sized 320x300 (2 cameras). These pages ignore the panel's camera setting.
-7. (Optional) Docks → Custom Browser Docks → `http://localhost:8787/` to run the control panel inside OBS.
+7. Info scene: browser source `http://localhost:8787/info.html` in its own OBS scene, with the chat source above it at the same spot as step 5 (1403,111 sized 454x906). No camera. Its images and text are set on the **Banners & sponsors** page.
+8. (Optional) Docks → Custom Browser Docks → `http://localhost:8787/` to run the control panel inside OBS.
 
 The control panel has two pages (links at the top): **Game** (`/`) and **Banners & sponsors** (`/media.html`). On the Game page the live controls (round, table, Win / draw) are on the left and the broadcast setup on the right; on a narrow window (e.g. an OBS dock) they stack, live controls first. The dealer's seat is highlighted.
 
@@ -63,7 +65,7 @@ The control panel has two pages (links at the top): **Game** (`/`) and **Banners
 - "Waits" button next to a player: click the tiles they are waiting on (tenpai), up to 3. They show as tiles under the score on the overlay right away and clear on the next hand. Tile art: [FluffyStuff/riichi-mahjong-tiles](https://github.com/FluffyStuff/riichi-mahjong-tiles) (public domain).
 - Scene section: "Round wind" shows the current round in Japanese (東1局), Portuguese (Leste 1) or romaji (Ton 1); seat winds stay in kanji. "Riichi call" picks the call animation text: リーチ or RIICHI.
 - "Scene → Ranking" fades the full-screen ranking over the game, no OBS scene switch needed.
-- **Banners & sponsors** page: upload images (png, jpg, webp, gif, up to 10 MB), reorder or remove them. Sponsors rotate with the club logo in the bottom-right corner; banners rotate on the break screen (the mascot shows when there are none). Files go to `public/uploads/`.
+- **Banners & sponsors** page: upload images (png, jpg, webp, gif, up to 10 MB), reorder or remove them. Sponsors rotate with the club logo in the bottom-right corner; banners rotate on the break screen (the mascot shows when there are none). **Info screen banners** and **Info screen text** (same page) feed `info.html`: the images rotate on the left, the text shows on the right as you type. The text takes simple Markdown (`# Heading`, `**bold**`, `*italic*`, `` `code` ``, `- item`, `1. item`, `- [ ] todo` / `- [x] done`, blank line between paragraphs) and scrolls on its own if it is too long; left empty, the banner takes the whole box. With no info images it falls back to the break banners, then the mascot. Files go to `public/uploads/`.
 
 State is saved to `state.json`, so restarting the server keeps everything.
 The control panel is reachable from other computers and phones on the LAN by default (it is password protected). To allow only this computer: `HOST=127.0.0.1 go run .`.

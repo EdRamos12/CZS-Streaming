@@ -76,4 +76,26 @@ const tileSrc = t => `assets/tiles/${t[1] === 'z' ? HONORS[t[0] - 1] : { m: 'Man
 const fmt = n => Number(n).toLocaleString('pt-BR');
 const esc = s => String(s).replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
 
-if (typeof module !== 'undefined') module.exports = { seatWinds, placements, parsePlayers, playersText, standings, nextHand, toggleRiichi, winDeltas, ronDeltas, drawDeltas, ceil100, TILES, tileSrc };
+// Small Markdown subset for the info screen, read line by line: # headings, **bold**, *italic*, `code`, - / 1. lists,
+// - [ ] / - [x] checkboxes, paragraphs (a blank line splits them), line breaks. Escapes first, so typed HTML shows as text.
+function md(src) {
+  const inline = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>').replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/^\[([ xX]?)\]\s*/, (_, x) => `<span class="check">${x.trim() ? '☑' : '☐'}</span> `);
+  const LISTS = [[/^\s*[-*+]\s+/, 'ul'], [/^\s*\d+[.)]\s+/, 'ol']];
+  let out = '', open = null; // open: 'p', 'ul' or 'ol' while a block is running
+  const close = () => { if (open) out += open === 'p' ? '</p>' : `</${open}>`; open = null; };
+  for (const line of String(src || '').split('\n')) {
+    const h = line.match(/^\s*(#{1,3})\s+(.*)/), list = LISTS.find(([re]) => re.test(line));
+    if (!line.trim()) close();
+    else if (h) { close(); out += `<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`; }
+    else if (list) {
+      if (open !== list[1]) { close(); out += `<${open = list[1]}>`; }
+      out += `<li>${inline(line.replace(list[0], ''))}</li>`;
+    } else if (open === 'p') out += `<br>${inline(line.trim())}`;
+    else { close(); out += `<p>${inline(line.trim())}`; open = 'p'; }
+  }
+  close();
+  return out;
+}
+
+if (typeof module !== 'undefined') module.exports = { seatWinds, placements, parsePlayers, playersText, standings, nextHand, toggleRiichi, winDeltas, ronDeltas, drawDeltas, ceil100, TILES, tileSrc, md };

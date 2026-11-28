@@ -6,7 +6,7 @@ const $ = id => document.getElementById(id);
 const STR = {
   pt: {
     navGame: 'Jogo', navMedia: 'Banners e patrocinadores',
-    sources: 'Fontes de navegador do OBS', sourcesHint: 'Todas em 1920×1080. Um clique no endereço seleciona ele inteiro.', inGame: 'Jogo', breakScreen: 'Intervalo / classificação', chat1: 'Jogo com chat (1 câmera)', chat2: 'Jogo com chat (2 câmeras)',
+    sources: 'Fontes de navegador do OBS', sourcesHint: 'Todas em 1920×1080. Um clique no endereço seleciona ele inteiro.', inGame: 'Jogo', breakScreen: 'Intervalo / classificação', chat1: 'Jogo com chat (1 câmera)', chat2: 'Jogo com chat (2 câmeras)', info: 'Informações (banner, texto e chat)',
     broadcast: 'Transmissão', title: 'Título', subtitle: 'Subtítulo (fase / mesa)', casters: 'Narrador(es) — câmera 1', casters2: 'Narrador(es) — câmera 2',
     scene: 'Cena', talk1: 'Narração (1 câmera)', talk2: 'Narração (2 câmeras)',
     camera: 'Câmera dos narradores', hidden: 'Oculta', oneCam: '1 câmera', twoCams: '2 câmeras', windText: 'Vento da rodada', windJa: 'Japonês (東1局)', windPt: 'Português (Leste 1)', riichiText: 'Chamada de riichi', riichiJa: 'Japonês (リーチ)',
@@ -28,11 +28,14 @@ const STR = {
     sponsors: 'Patrocinadores', sponsorsHint: 'Canto inferior direito do jogo, alternando com o logo do clube.',
     rotate: 'Troca a cada (segundos)', upload: 'Adicionar imagens (png, jpg, webp ou gif, até 10 MB cada)',
     emptyBanners: 'Nenhum banner: o mascote aparece na tela de intervalo.', emptySponsors: 'Nenhum patrocinador: só o logo do clube aparece no canto.',
+    infoBanners: 'Banners da tela de informações', infoBannersHint: 'Tela de informações (info.html), ao lado do texto.',
+    emptyInfoBanners: 'Nenhuma imagem: usa os banners do intervalo (ou o mascote).',
+    infoText: 'Texto da tela de informações', infoTextHint: 'Aparece ao vivo em info.html. Markdown: <code># Título</code>, <code>**negrito**</code>, <code>*itálico*</code>, <code>- item</code>, <code>1. item</code>, <code>- [ ] / - [x]</code>; linha em branco separa parágrafos. Vazio: só o banner.',
     uploading: 'Enviando {i} de {n}…', uploadFail: 'Falha ao enviar', moveUp: 'Mostrar antes', moveDown: 'Mostrar depois', remove: 'Remover',
   },
   en: {
     navGame: 'Game', navMedia: 'Banners & sponsors',
-    sources: 'OBS browser sources', sourcesHint: 'All 1920×1080. One click on an address selects all of it.', inGame: 'In-game', breakScreen: 'Break / ranking', chat1: 'In-game with chat (1 camera)', chat2: 'In-game with chat (2 cameras)',
+    sources: 'OBS browser sources', sourcesHint: 'All 1920×1080. One click on an address selects all of it.', inGame: 'In-game', breakScreen: 'Break / ranking', chat1: 'In-game with chat (1 camera)', chat2: 'In-game with chat (2 cameras)', info: 'Info (banner, text and chat)',
     broadcast: 'Broadcast', title: 'Title', subtitle: 'Subtitle (stage / table)', casters: 'Commentator(s) — camera 1', casters2: 'Commentator(s) — camera 2',
     scene: 'Scene', talk1: 'Commentary (1 camera)', talk2: 'Commentary (2 cameras)',
     camera: 'Commentator camera', hidden: 'Hidden', oneCam: '1 camera', twoCams: '2 cameras', windText: 'Round wind', windJa: 'Japanese (東1局)', windPt: 'Portuguese (Leste 1)', riichiText: 'Riichi call', riichiJa: 'Japanese (リーチ)',
@@ -54,6 +57,9 @@ const STR = {
     sponsors: 'Sponsors', sponsorsHint: 'Bottom-right corner in game, taking turns with the club logo.',
     rotate: 'Change every (seconds)', upload: 'Add images (png, jpg, webp or gif, up to 10 MB each)',
     emptyBanners: 'No banners: the mascot shows on the break screen.', emptySponsors: 'No sponsors: only the club logo shows in the corner.',
+    infoBanners: 'Info screen banners', infoBannersHint: 'Info screen (info.html), next to the text.',
+    emptyInfoBanners: 'No images: uses the break screen banners (or the mascot).',
+    infoText: 'Info screen text', infoTextHint: 'Shows live on info.html. Markdown: <code># Heading</code>, <code>**bold**</code>, <code>*italic*</code>, <code>- item</code>, <code>1. item</code>, <code>- [ ] / - [x]</code>; a blank line starts a new paragraph. Empty: banner only.',
     uploading: 'Uploading {i} of {n}…', uploadFail: 'Upload failed', moveUp: 'Show earlier', moveDown: 'Show later', remove: 'Remove',
   },
 };
@@ -83,7 +89,7 @@ $('lang').onchange = e => { lang = localStorage.lang = e.target.value; applyLang
 
 // Fields with data-k="path.to.value" edit the shared state directly; data-num makes them numeric.
 let state, onFill = () => {};
-const DEFAULTS = { casters2: '', scene: 'game', camera: 1, windText: 'ja', riichiText: 'ja', startScore: 25000, banners: [], sponsors: [], rotateSecs: 8 };
+const DEFAULTS = { casters2: '', scene: 'game', camera: 1, windText: 'ja', riichiText: 'ja', startScore: 25000, banners: [], sponsors: [], infoBanners: [], infoText: '', rotateSecs: 8 };
 const get = (o, k) => k.split('.').reduce((a, p) => a[p], o);
 const set = (o, k, v) => { const ps = k.split('.'), last = ps.pop(); ps.reduce((a, p) => a[p], o)[last] = v; };
 

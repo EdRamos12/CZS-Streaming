@@ -1,4 +1,4 @@
-// Shared by overlay.html (game, plus the ranking the control panel can fade in), ranking.html and cams1.html / cams2.html.
+// Shared by overlay.html (game, plus the ranking the control panel can fade in), ranking.html, cams1.html / cams2.html, chat1/2.html and info.html.
 // ranking.html and cams1/2.html pin their scene with <body data-scene>; cams1/2.html and chat1/2.html pin the camera count with <body data-camera>; commentary needs its own OBS scene, or the game capture would show through its camera holes.
 const forced = document.body.dataset.scene, forcedCam = document.body.dataset.camera;
 const $ = id => document.getElementById(id);
@@ -73,8 +73,9 @@ async function autoScroll(view) {
   const list = view.firstElementChild;
   for (;;) {
     await sleep(8000);
-    const d = list.offsetHeight - view.clientHeight;
-    if (d <= 0) continue;
+    const over = list.offsetHeight - view.clientHeight;
+    if (over <= 0) continue;
+    const d = over + 48; // past the 48px bottom fade (.view mask), so the last line ends up fully readable
     const secs = d / 40; // 40 px per second
     list.style.transition = `transform ${secs}s linear`;
     list.style.transform = `translateY(${-d}px)`;
@@ -154,6 +155,10 @@ function render(s) {
   const banners = uploads(s.banners);
   slideshow($('banner'), banners.length ? banners : ['assets/nanda.png'], s.rotateSecs ?? 8);
   slideshow($('banner2'), banners.length ? banners : ['assets/nanda.png'], s.rotateSecs ?? 8);
+  // info.html: its own images, else the break banners, else the mascot
+  const info = uploads(s.infoBanners);
+  slideshow($('infoBanner'), info.length ? info : banners.length ? banners : ['assets/nanda.png'], s.rotateSecs ?? 8);
+  setList($('infoText'), md(s.infoText));
   prev = s;
 }
 

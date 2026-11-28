@@ -25,12 +25,18 @@
 <main class="cols">
 <section class="sheet" data-list="banners"></section>
 <section class="sheet" data-list="sponsors"></section>
+<section class="sheet" data-list="infoBanners"></section>
+<section class="sheet">
+  <h2 data-i18n="infoText"></h2>
+  <p class="hint" data-i18n="infoTextHint"></p>
+  <textarea data-k="infoText" rows="14"></textarea>
+</section>
 </main>
 
 <script src="common.js"></script>
 <script src="dash.js"></script>
 <script>
-  const LISTS = ['banners', 'sponsors'];
+  const LISTS = ['banners', 'sponsors', 'infoBanners'];
   const cap = s => s[0].toUpperCase() + s.slice(1);
   for (const k of LISTS) document.querySelector(`[data-list=${k}]`).innerHTML = `<h2 data-i18n="${k}"></h2>
     <p class="hint" data-i18n="${k}Hint"></p>

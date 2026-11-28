@@ -113,6 +113,7 @@
   <p><span data-i18n="talk2"></span><br><code id="u6"></code></p>
   <p><span data-i18n="chat1"></span><br><code id="u4"></code></p>
   <p><span data-i18n="chat2"></span><br><code id="u5"></code></p>
+  <p><span data-i18n="info"></span><br><code id="u7"></code></p>
 </section>
 </div>
 </main>
@@ -151,6 +152,7 @@
   $('u6').textContent = `${location.origin}/cams2.html`;
   $('u4').textContent = `${location.origin}/chat1.html`;
   $('u5').textContent = `${location.origin}/chat2.html`;
+  $('u7').textContent = `${location.origin}/info.html`;
   $('seats').innerHTML = [0, 1, 2, 3].map(i => `<div class="seat"><span class="wind" id="w${i}"></span>
     <input type="text" list="names" data-i18n-ph="player" data-k="seats.${i}.name">
     <input type="number" step="100" data-k="seats.${i}.score" data-num>
