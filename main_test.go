@@ -145,3 +145,22 @@ func TestServer(t *testing.T) {
 		}
 	}
 }
+
+func TestChangelog(t *testing.T) {
+	rs := parseLog("# Changelog\n- not a note\n## 1.2.0\n- pages\n## 1.1.0 (server)\n- api\n- more\n## 1.0.0\n")
+	if len(rs) != 3 || rs[0].Version != "1.2.0" || rs[0].Server || !rs[1].Server || len(rs[1].Notes) != 2 {
+		t.Fatalf("parse: %+v", rs)
+	}
+	if n := newer(rs, "1.1.0"); len(n) != 1 || anyServer(n) {
+		t.Errorf("from 1.1.0: %+v", n) // pages only: pulled on its own
+	}
+	if n := newer(rs, "1.0.0"); len(n) != 2 || !anyServer(n) {
+		t.Errorf("from 1.0.0: %+v", n) // includes a server release: pulled by hand
+	}
+	if n := newer(rs, "9.9.9"); n != nil {
+		t.Errorf("unknown version: %+v", n)
+	}
+	if top(parseLog(builtLog)) == "?" {
+		t.Error("CHANGELOG.md has no version heading")
+	}
+}

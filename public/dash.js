@@ -31,6 +31,8 @@ const STR = {
     infoBanners: 'Banners da tela de informações', infoBannersHint: 'Tela de informações (info.html), ao lado do texto.',
     emptyInfoBanners: 'Nenhuma imagem: usa os banners do intervalo (ou o mascote).',
     infoText: 'Texto da tela de informações', infoTextHint: 'Aparece ao vivo em info.html. Markdown: <code># Título</code>, <code>**negrito**</code>, <code>*itálico*</code>, <code>- item</code>, <code>1. item</code>, <code>- [ ] / - [x]</code>; linha em branco separa parágrafos. Vazio: só o banner.',
+    ver: 'Páginas {p} · Servidor {s}', verTip: 'Clique para procurar atualizações', checking: 'Procurando…',
+    updPages: 'Atualizar páginas para {v}', updServer: 'Servidor {v} disponível: pare, git pull e reinicie', restart: 'Reinicie o servidor (go run / go build) para terminar a {v}',
     uploading: 'Enviando {i} de {n}…', uploadFail: 'Falha ao enviar', moveUp: 'Mostrar antes', moveDown: 'Mostrar depois', remove: 'Remover',
   },
   en: {
@@ -60,6 +62,8 @@ const STR = {
     infoBanners: 'Info screen banners', infoBannersHint: 'Info screen (info.html), next to the text.',
     emptyInfoBanners: 'No images: uses the break screen banners (or the mascot).',
     infoText: 'Info screen text', infoTextHint: 'Shows live on info.html. Markdown: <code># Heading</code>, <code>**bold**</code>, <code>*italic*</code>, <code>- item</code>, <code>1. item</code>, <code>- [ ] / - [x]</code>; a blank line starts a new paragraph. Empty: banner only.',
+    ver: 'Pages {p} · Server {s}', verTip: 'Click to check for updates', checking: 'Checking…',
+    updPages: 'Update pages to {v}', updServer: 'Server {v} available: stop, git pull and restart', restart: 'Restart the server (go run / go build) to finish {v}',
     uploading: 'Uploading {i} of {n}…', uploadFail: 'Upload failed', moveUp: 'Show earlier', moveDown: 'Show later', remove: 'Remove',
   },
 };
@@ -69,7 +73,7 @@ const t = k => STR[lang][k];
 document.body.insertAdjacentHTML('afterbegin', `<nav>
   <img src="assets/logo.png" alt="CZS">
   <a href="/" data-i18n="navGame"></a><a href="/media.html" data-i18n="navMedia"></a>
-  <span class="tools"><select id="lang" aria-label="Idioma / Language"><option value="pt">Português</option><option value="en">English</option></select>
+  <span class="tools"><button id="ver"></button><select id="lang" aria-label="Idioma / Language"><option value="pt">Português</option><option value="en">English</option></select>
   <span id="status" role="status" data-k="connecting"></span></span></nav>`);
 document.querySelectorAll('nav a').forEach(a => a.classList.toggle('cur', a.pathname === location.pathname || (a.pathname === '/' && location.pathname === '/control.html')));
 // Link to the server, shown in the nav: connecting -> live -> saved (after an edit) / offline (edits are not reaching the stream).
@@ -82,9 +86,28 @@ function applyLang() {
   document.querySelectorAll('[data-i18n-ph]').forEach(el => (el.placeholder = t(el.dataset.i18nPh)));
   document.querySelectorAll('[data-i18n-title]').forEach(el => (el.title = t(el.dataset.i18nTitle)));
   setStatus($('status').dataset.k);
+  showVer();
   document.title = `${document.querySelector('nav a.cur')?.textContent || 'CZS'} · CZS`;
   if (state) fill();
 }
+// Version tracker: page-only releases are pulled by the server; server releases need a manual git pull + restart.
+let ver;
+function showVer() {
+  const b = $('ver');
+  if (!ver) return (b.textContent = t('checking'));
+  const v = ver.new?.[0]?.version;
+  const k = ver.restart ? 'restart' : v ? (ver.needsServer ? 'updServer' : 'updPages') : 'ver';
+  b.textContent = t(k).replace('{p}', ver.pages || '?').replace('{s}', ver.server).replace('{v}', v || ver.pages);
+  b.className = k === 'ver' ? '' : k === 'updPages' ? 'primary' : 'on';
+  b.title = [...(ver.new || []).flatMap(r => [r.version + (r.server ? ' (server)' : ''), ...r.notes.map(n => '  - ' + n)]), ver.err, t('verTip')].filter(Boolean).join('\n');
+}
+fetch('/api/version').then(r => r.json()).then(v => { ver = v; showVer(); }).catch(() => {});
+$('ver').onclick = async () => {
+  ver = null; showVer();
+  ver = await fetch('/api/update', { method: 'POST' }).then(r => r.json()).catch(() => ({ err: t('offline') }));
+  if (ver.updated) location.reload(); // new page files are on disk
+  showVer();
+};
 $('lang').onchange = e => { lang = localStorage.lang = e.target.value; applyLang(); };
 
 // Fields with data-k="path.to.value" edit the shared state directly; data-num makes them numeric.

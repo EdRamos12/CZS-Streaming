@@ -267,6 +267,8 @@ func (s *server) handler() http.Handler {
 	mux.HandleFunc("DELETE /api/upload/{name}", s.guard(deleteUpload))
 	mux.HandleFunc("GET /api/auth", s.authInfo)
 	mux.HandleFunc("POST /api/login", s.login)
+	mux.HandleFunc("GET /api/version", s.guard(versionInfo))
+	mux.HandleFunc("POST /api/update", s.guard(runUpdate))
 	page := func(f string) http.HandlerFunc {
 		return s.guard(func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, filepath.Join(public, f)) })
 	}
@@ -311,6 +313,8 @@ func main() {
 	if b, err := os.ReadFile(file); err == nil && json.Compact(&compact, b) == nil {
 		s.state = compact.Bytes()
 	}
+
+	go checkUpdate(true) // only at startup (and from the panel), never mid-stream
 
 	fmt.Printf("Control panel:    http://localhost:%s/\n", port)
 	fmt.Printf("OBS (in-game):    http://localhost:%s/overlay.html\n", port)

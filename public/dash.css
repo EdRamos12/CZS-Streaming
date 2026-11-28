@@ -53,6 +53,8 @@ nav a:hover { color: var(--text); }
 nav a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 nav a.cur { color: var(--ink); background: var(--gold); }
 nav .tools { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+#ver:not(.primary, .on) { background: none; border-color: transparent; padding: 5px 8px; font-size: 13px; color: var(--muted); }
+#ver.primary, #ver.on { padding: 5px 12px; font-size: 13px; text-transform: none; }
 /* Link to the server: a small mark while all is well, a red block when edits are not reaching the stream. */
 #status { display: flex; align-items: center; justify-content: end; gap: 8px; min-width: 9em; font-size: 13px; color: var(--muted); white-space: nowrap; }
 #status::before { content: ''; width: 8px; height: 8px; background: currentColor; }

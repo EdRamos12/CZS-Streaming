@@ -67,6 +67,14 @@ The control panel has two pages (links at the top): **Game** (`/`) and **Banners
 - "Scene → Ranking" fades the full-screen ranking over the game, no OBS scene switch needed.
 - **Banners & sponsors** page: upload images (png, jpg, webp, gif, up to 10 MB), reorder or remove them. Sponsors rotate with the club logo in the bottom-right corner; banners rotate on the break screen (the mascot shows when there are none). **Info screen banners** and **Info screen text** (same page) feed `info.html`: the images rotate on the left, the text shows on the right as you type. The text takes simple Markdown (`# Heading`, `**bold**`, `*italic*`, `` `code` ``, `- item`, `1. item`, `- [ ] todo` / `- [x] done`, blank line between paragraphs) and scrolls on its own if it is too long; left empty, the banner takes the whole box. With no info images it falls back to the break banners, then the mascot. Files go to `public/uploads/`.
 
+## Updates
+Install with `git clone`, then `go run .` (or `go build`). The version shows in the control panel's top bar (`Pages x · Server y`); click it to check GitHub again.
+- **Page-only releases** are pulled on their own when the server starts (or when you click the version). Nothing restarts, so it's safe between games; reload the OBS sources to see the new pages.
+- **Server releases** (marked `(server)` in [CHANGELOG.md](CHANGELOG.md)) are not pulled on their own; the button turns red. Stop the server, `git pull`, then `go run .` or `go build` again. If you pulled but didn't rebuild, the button asks you to restart.
+- Local edits or commits block the pull (nothing gets overwritten); the reason shows when you hover the version.
+
+Releasing: add a `## <version>` heading at the top of `CHANGELOG.md` (with ` (server)` if Go code changed), commit and push to `main`.
+
 State is saved to `state.json`, so restarting the server keeps everything.
 The control panel is reachable from other computers and phones on the LAN by default (it is password protected). To allow only this computer: `HOST=127.0.0.1 go run .`.
 
