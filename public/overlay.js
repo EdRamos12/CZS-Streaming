@@ -49,7 +49,7 @@ function tween(el, to, delay = 0, f = fmt) {
   const step = t => {
     if (el.t0 !== t0) return; // a newer change took over
     const k = Math.max(0, Math.min(1, (t - t0) / 900));
-    el.textContent = f(Math.round((from + (to - from) * (1 - (1 - k) ** 3)) / 100) * 100);
+    el.textContent = f(Math.round(from + (to - from) * (1 - (1 - k) ** 3)));
     if (k < 1) requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
