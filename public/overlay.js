@@ -162,4 +162,23 @@ function render(s) {
   prev = s;
 }
 
-new EventSource('/api/events').onmessage = e => render(JSON.parse(e.data));
+// OBS runs every browser source in one Chromium, which allows only 6 open connections per server: a live
+// EventSource per source left none for new banner images once 6+ sources were open. So poll instead: open the
+// stream, take its first message (the current state) and close it. Works with old servers too (no new endpoint).
+let last;
+async function poll() {
+  try {
+    const rd = (await fetch('/api/events', { cache: 'no-store' })).body.getReader(), dec = new TextDecoder();
+    let buf = '', end;
+    while ((end = buf.indexOf('\n\n')) < 0) {
+      const { value, done } = await rd.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+    }
+    rd.cancel();
+    const data = end > 0 && buf.slice('data: '.length, end);
+    if (data && data !== last) render(JSON.parse(last = data));
+  } catch {} // server down: keep trying
+  setTimeout(poll, 500);
+}
+poll();
